@@ -512,7 +512,7 @@ class Matrix4
     return this;
   }
 
-  Matrix4 setRotationFromEuler( Vector3 v, String order ) 
+  Matrix4 setRotationFromEuler( Vector3 v, [String order = 'XYZ'] ) 
   {
     num x = v.x, y = v.y, z = v.z,
     a = Math.cos( x ), b = Math.sin( x ),

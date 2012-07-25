@@ -6,6 +6,7 @@
 
 #source('cameras/Camera.dart');
 #source('cameras/PerspectiveCamera.dart');
+#source('cameras/OrthographicCamera.dart');
 
 #source('core/Vector3.dart');
 #source('core/Matrix3.dart');
@@ -33,6 +34,21 @@
 
 #source('extras/geometries/CubeGeometry.dart');
 #source('extras/geometries/PlaneGeometry.dart');
+#source('extras/geometries/TubeGeometry.dart');
+#source('extras/geometries/ExtrudeGeometry.dart');
+#source('extras/geometries/FontUtils.dart');
+
+#source('extras/core/CurveUtils.dart');
+#source('extras/core/Curve.dart');
+#source('extras/core/CurvePath.dart');
+#source('extras/core/Path.dart');
+#source('extras/core/ShapeUtils.dart');
+#source('extras/core/Shape.dart');
+#source('extras/core/LineCurve.dart');
+#source('extras/core/QuadraticBezierCurve.dart');
+#source('extras/core/CubicBezierCurve.dart');
+#source('extras/core/SplineCurve.dart');
+#source('extras/core/ArcCurve.dart');
 
 #source('lights/AmbientLight.dart');
 #source('lights/DirectionalLight.dart');
