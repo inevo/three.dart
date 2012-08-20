@@ -166,7 +166,7 @@ class Projector
   }
 
   //TODO: check logic of using PerspectiveCamera here, seems odd.
-  ProjectorRenderData projectScene( Scene scene, PerspectiveCamera camera, bool sort )
+  ProjectorRenderData projectScene( Scene scene, Camera camera, bool sort )
   {
     num near = camera.near, far = camera.far;
     int o, ol, v, vl, f, fl, n, nl, c, cl, u, ul;

@@ -11,8 +11,6 @@ class PerspectiveCamera extends Camera
 {
   num _fov;
   num _aspect;
-  num _near;
-  num _far;
   
   num _fullWidth;
   num _fullHeight;
@@ -20,9 +18,6 @@ class PerspectiveCamera extends Camera
   num _y;
   num _width;
   num _height;
-  
-  num get near() {  return _near;  }
-  num get far() {  return _far;  }
   
   PerspectiveCamera( fov, aspect, near, far ) : super()
   {
