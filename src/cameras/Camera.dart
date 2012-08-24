@@ -20,15 +20,6 @@ class Camera extends Object3D
   
   Camera() 
   {
-//    if ( arguments.length ) 
-//    {
-       //TODO: figure out what's supposed to be happening here.. Quirk of JS inheritance?
-//      console.warn( 'DEPRECATED: Camera() is now PerspectiveCamera() or OrthographicCamera().' );
-//      return new PerspectiveCamera( arguments[ 0 ], arguments[ 1 ], arguments[ 2 ], arguments[ 3 ] );
-//    }
-
-//    super();
-//    THREE.Object3D.call( this );
 
     matrixWorldInverse = new Matrix4();
 
@@ -38,7 +29,7 @@ class Camera extends Object3D
 
   void lookAt( vector ) 
   {
-    // TODO: Add hierarchy support.
+    // TODO: Add hierarchy support
 
     matrix.lookAt( position, vector, up );
 
