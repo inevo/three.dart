@@ -128,15 +128,17 @@ class CurvePath extends Curve {
 
 		var points = getPoints();
 
-		var maxX, maxY;
-		var minX, minY;
+		var maxX, maxY, maxZ;
+		var minX, minY, minZ;
 
 		maxX = maxY = - double.INFINITY;
 		minX = minY = double.INFINITY;
 
 		var p, i, il, sum;
 
-		sum = new Vector2();
+		var v3 = points[0] is THREE.Vector3;
+		
+		sum = (v3) ? new THREE.Vector3() : new THREE.Vector2();
 
 		for ( i = 0; i < points.length; i ++ ) {
 
@@ -146,13 +148,18 @@ class CurvePath extends Curve {
 			else if ( p.x < minX ) minX = p.x;
 
 			if ( p.y > maxY ) maxY = p.y;
-			else if ( p.y < maxY ) minY = p.y;
+			else if ( p.y < minY ) minY = p.y;
 
+			if (v3) {
+	      if ( p.z > maxZ ) maxZ = p.z;
+	      else if ( p.z < minZ ) minZ = p.z;
+	    }
+			
 			sum.addSelf( p.x, p.y );
 
 		}
 
-		return {
+		var ret = {
 
 			"minX": minX,
 			"minY": minY,
@@ -162,6 +169,14 @@ class CurvePath extends Curve {
 
 		};
 
+		if (v3) {
+
+	    ret["maxZ"] = maxZ;
+	    ret["minZ"] = minZ;
+	    
+	  }
+
+	  return ret;
 	}
 
 	/**************************************************************
@@ -185,7 +200,8 @@ class CurvePath extends Curve {
 		var geometry = new Geometry();
 
 		for ( var i = 0; i < points.length; i ++ ) {
-			geometry.vertices.add( new Vector3( points[ i ].x, points[ i ].y, 0 ) );
+		  var z = (points[ i ].z != null) ? points[ i ].z : 0;
+			geometry.vertices.add( new Vector3( points[ i ].x, points[ i ].y, z) );
 		}
 
 		return geometry;

@@ -266,10 +266,6 @@ class CanvasRenderer
       
       RenderableVertex _v1, _v2, _v3, _v4;
 
-      //TODO: Replaced non type-safe references to _v1 - _v4 here, hopefully that's ok.
-      if (debug) {
-        print("$element");
-      }
       if ( element is RenderableParticle ) 
       {
 //        _v1 = element;
@@ -419,7 +415,7 @@ class CanvasRenderer
   
       if ( light is DirectionalLight ) {
         DirectionalLight dLight = light;
-        lightPosition = light.matrixWorld.getPosition();
+        lightPosition = light.matrixWorld.getPosition().normalize();
   
         amount = normal.dot( lightPosition );
   
@@ -683,7 +679,11 @@ class CanvasRenderer
           _color.g = Math.max( 0, Math.min( mlMaterial.color.g * _color.g, 1 ) );
           _color.b = Math.max( 0, Math.min( mlMaterial.color.b * _color.b, 1 ) );
   
-          mlMaterial.wireframe ? strokePath( _color, mlMaterial.wireframeLinewidth, mlMaterial.wireframeLinecap, mlMaterial.wireframeLinejoin ) : fillPath( _color );
+          if (mlMaterial.wireframe) {
+            strokePath( _color, mlMaterial.wireframeLinewidth, mlMaterial.wireframeLinecap, mlMaterial.wireframeLinejoin );
+          } else {
+            fillPath( _color );
+          }
         }
       } 
       else 
