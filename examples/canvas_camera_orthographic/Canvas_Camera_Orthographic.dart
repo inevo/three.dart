@@ -1,4 +1,5 @@
 #import('dart:html');
+#import('dart:math', prefix:'Math');
 #import('../../src/ThreeD.dart');
 
 class Canvas_Camera_Orthographic {
@@ -61,41 +62,43 @@ class Canvas_Camera_Orthographic {
     // Cubes
 
     geometry = new CubeGeometry( 50, 50, 50 );
-    material = new MeshLambertMaterial( { "color": 0xffffff} );
+    material = new MeshLambertMaterial( { "color": 0xffffff, "overdraw": true} );
 
+    var rnd = new Math.Random();
+    
     for ( var i = 0; i < 100; i ++ ) {
 
       var cube = new Mesh( geometry, material );
 
-      cube.scale.y = ( Math.random() * 2 + 1 ).floor();
+      cube.scale.y = rnd.nextInt(2) + 1;
 
-      cube.position.x = ( ( Math.random() * 1000 - 500 ) / 50 ).floor() * 50 + 25;
+      cube.position.x = ( ( rnd.nextInt(1000) - 500 ) / 50 ).floor() * 50 + 25;
       cube.position.y = ( cube.scale.y * 50 ) / 2;
-      cube.position.z = ( ( Math.random() * 1000 - 500 ) / 50 ).floor() * 50 + 25;
+      cube.position.z = ( ( rnd.nextInt(1000) - 500 ) / 50 ).floor() * 50 + 25;
 
       scene.add( cube );
 
     }
     
 
-    /* Lights
+    // Lights
 
-    var ambientLight = new AmbientLight( Math.random() * 0x10 );
+    var ambientLight = new AmbientLight( rnd.nextDouble() * 0x10 );
     scene.add( ambientLight );
 
-    var directionalLight = new DirectionalLight( Math.random() * 0xffffff );
-    directionalLight.position.x = Math.random() - 0.5;
-    directionalLight.position.y = Math.random() - 0.5;
-    directionalLight.position.z = Math.random() - 0.5;
+    var directionalLight = new DirectionalLight( rnd.nextDouble() * 0xffffff );
+    directionalLight.position.x = rnd.nextDouble() - 0.5;
+    directionalLight.position.y = rnd.nextDouble() - 0.5;
+    directionalLight.position.z = rnd.nextDouble() - 0.5;
     directionalLight.position.normalize();
     scene.add( directionalLight );
 
-    directionalLight = new DirectionalLight( Math.random() * 0xffffff );
-    directionalLight.position.x = Math.random() - 0.5;
-    directionalLight.position.y = Math.random() - 0.5;
-    directionalLight.position.z = Math.random() - 0.5;
+    directionalLight = new DirectionalLight( rnd.nextDouble() * 0xffffff );
+    directionalLight.position.x = rnd.nextDouble() - 0.5;
+    directionalLight.position.y = rnd.nextDouble() - 0.5;
+    directionalLight.position.z = rnd.nextDouble() - 0.5;
     directionalLight.position.normalize();
-    scene.add( directionalLight );*/
+    scene.add( directionalLight );
 
     renderer = new CanvasRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
