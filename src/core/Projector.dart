@@ -196,8 +196,8 @@ class Projector
     
     if ( camera.parent == null ) {
 //      console.warn( 'DEPRECATED: Camera hasn\'t been added to a Scene. Adding it...' );
-      //camera.updateMatrixWorld();
       scene.add(camera);
+      camera.updateMatrixWorld();
     }
 
     camera.matrixWorldInverse.getInverse( camera.matrixWorld );
