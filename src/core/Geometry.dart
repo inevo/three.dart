@@ -23,16 +23,27 @@ class Geometry
   List _faceUvs;// = [[]];
   List<List> _faceVertexUvs;// = [[]];
 
-  List _morphTargets, _morphColors, _skinWeights, _skinIndices;
+  List morphTargets, morphColors, morphNormals, skinWeights, skinIndices;
 
   List __tmpVertices;
   
-  Map _boundingBox, _boundingSphere;
+  BoundingBox _boundingBox;
+  BoundingSphere _boundingSphere;
 
   bool _hasTangents, _dynamic;
   
-  Map get boundingSphere() {  return _boundingSphere;  }
-  List get morphTargets() {  return _morphTargets;  }
+  // TODO - Check if these are only used in WebGLRendererer
+  var geometryGroups, geometryGroupsList;
+  var verticesNeedUpdate, 
+    morphTargetsNeedUpdate,
+    elementsNeedUpdate,
+    uvsNeedUpdate,
+    normalsNeedUpdate,
+    tangentsNeedUpdate,
+    colorsNeedUpdate;
+  
+  BoundingSphere get boundingSphere() {  return _boundingSphere;  }
+
   List<IFace3> get faces() {  return _faces;  }
   List get materials() {  return _materials;  }
   List<Vertex> get vertices() {  return _vertices;  }
@@ -57,11 +68,12 @@ class Geometry
     _faceVertexUvs = [];//[[]];
     _faceVertexUvs.add(new List());
 
-    _morphTargets = [];
-    _morphColors = [];
-
-    _skinWeights = [];
-    _skinIndices = [];
+    morphTargets = [];
+    morphColors = [];
+    morphNormals = [];
+    
+    skinWeights = [];
+    skinIndices = [];
 
     _boundingBox = null;
     _boundingSphere = null;
@@ -384,14 +396,14 @@ class Geometry
       Vector3 position, firstPosition = _vertices[ 0 ].position;
 
       if ( _boundingBox === null ) {
-        _boundingBox = { "min": firstPosition.clone(), "max": firstPosition.clone() };
+        _boundingBox = new BoundingBox( min: firstPosition.clone(), max: firstPosition.clone() );
       } else {
-        _boundingBox["min"].copy( firstPosition );
-        _boundingBox["max"].copy( firstPosition );
+        _boundingBox.min.copy( firstPosition );
+        _boundingBox.max.copy( firstPosition );
       }
 
-      Vector3 min = _boundingBox["min"],
-        max = _boundingBox["max"];
+      Vector3 min = _boundingBox.min,
+        max = _boundingBox.max;
 
       num vl = _vertices.length;
       for ( int v = 1; v < vl; v ++ ) 
@@ -428,7 +440,7 @@ class Geometry
       if ( radius > maxRadius ) maxRadius = radius;
     }
 
-    _boundingSphere = { "radius": maxRadius };
+    _boundingSphere = new BoundingSphere(radius: maxRadius );
   }
 
   /*
@@ -500,4 +512,15 @@ class Geometry
     // Use unique set of vertices
     _vertices = unique;
   }
+}
+
+class BoundingBox {
+  Vector3 min;
+  Vector3 max;
+  BoundingBox([this.min, this.max]);
+}
+
+class BoundingSphere {
+  num radius;
+  BoundingSphere([this.radius]);
 }

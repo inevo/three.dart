@@ -201,6 +201,30 @@ class Matrix4
     return this;
   }
 
+  multiplyVector3Array( a ) {
+
+    var tmp = Matrix4.__v1;
+
+    il = a.length;
+    
+    for ( var i = 0; i < il; i += 3 ) {
+
+      tmp.x = a[ i ];
+      tmp.y = a[ i + 1 ];
+      tmp.z = a[ i + 2 ];
+
+      multiplyVector3( tmp );
+
+      a[ i ]     = tmp.x;
+      a[ i + 1 ] = tmp.y;
+      a[ i + 2 ] = tmp.z;
+
+    }
+
+    return a;
+
+  }
+  
   Vector3 multiplyVector3( Vector3 v ) 
   {
     num vx = v.x, vy = v.y, vz = v.z,

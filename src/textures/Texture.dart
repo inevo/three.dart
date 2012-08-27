@@ -10,12 +10,17 @@
 class Texture 
 {
   int _id;
-  var _image;
+  var image;
   var _mapping; //UVMapping appears to be missing..
   int _wrapS, _wrapT, _magFilter, _minFilter, _format, _type;
   Vector2 _offset, _repeat;
-  bool _generateMipmaps, _needsUpdate;
+  bool _generateMipmaps;
+  bool premultiplyAlpha;
+  
+  bool needsUpdate;
   var _onUpdate;
+  
+  bool flipY;
   
   Vector2 get offset() {  return _offset;  }
   Vector2 get repeat() {  return _repeat;  }
@@ -23,11 +28,9 @@ class Texture
   
   
   //TODO: resolve dynamic vars, find out what UVMapping is!
-  Texture( Dynamic image, Dynamic mapping, int wrapS, int wrapT, int magFilter, int minFilter, int format, int type )
+  Texture( this.image, [Dynamic mapping, int wrapS, int wrapT, int magFilter, int minFilter, int format, int type] )
   {
     _id = Three.TextureCount ++;
-
-    _image = image;
 
     //UVMapping _mapping = mapping !== null ? mapping : new UVMapping();
     _mapping = mapping !== null ? mapping : null;//new UVMapping();
@@ -45,14 +48,16 @@ class Texture
     _repeat = new Vector2( 1, 1 );
 
     _generateMipmaps = true;
-
-    _needsUpdate = false;
+    premultiplyAlpha = false;
+    flipY = true;
+    
+    needsUpdate = false;
     _onUpdate = null;
   }
 
   Texture clone()
   {
-    Texture clonedTexture = new Texture( _image, _mapping, _wrapS, _wrapT, _magFilter, _minFilter, _format, _type );
+    Texture clonedTexture = new Texture( image, _mapping, _wrapS, _wrapT, _magFilter, _minFilter, _format, _type );
 
     clonedTexture.offset.copy( _offset );
     clonedTexture.repeat.copy( _repeat );

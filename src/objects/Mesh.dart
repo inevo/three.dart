@@ -41,7 +41,7 @@ class Mesh extends Object3D
         _geometry.computeBoundingSphere();
       }
 
-      _boundRadius = geometry.boundingSphere['radius'];
+      _boundRadius = geometry.boundingSphere.radius;
 
 
       // setup morph targets
