@@ -3,7 +3,8 @@ class ShaderMaterial extends Material {
   String fragmentShader;
   String vertexShader;
   Map uniforms;
-  var attributes;
+  
+  //var attributes; - Moved to Material 
 
   int shading;
 

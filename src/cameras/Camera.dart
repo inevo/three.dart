@@ -12,7 +12,7 @@ class Camera extends Object3D
   Matrix4 projectionMatrix;
   Matrix4 projectionMatrixInverse;
   
-  Camera() 
+  Camera() : super()
   {
 //    if ( arguments.length ) 
 //    {

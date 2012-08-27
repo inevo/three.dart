@@ -14,13 +14,13 @@ class ImageUtils {
 			texture.image = event.content;
 			texture.needsUpdate = true;
 
-			if ( onLoad ) onLoad( texture );
+			if ( onLoad != null ) onLoad( texture );
 
 		} );
 
 		loader.addEventListener( 'error', function ( event ) {
 
-			if ( onError ) onError( event.message );
+			if ( onError != null ) onError( event.message );
 
 		} );
 
@@ -51,7 +51,7 @@ class ImageUtils {
 				if ( images.dynamic.loadCount === 6 ) {
 
 					texture.needsUpdate = true;
-					if ( onLoad ) onLoad();
+					if ( onLoad != null ) onLoad();
 
 				}
 

@@ -243,13 +243,15 @@ class Object3D
   }
   
   // Quick hack to allow setting new properties (used by the renderer)
-  Map _props;
+  Map __props;
   
-  get props() {
-    if (_props == null) {
-      _props = {};
+  get _props() {
+    if (__props == null) {
+      __props = {};
     }
-    return _props;
+    return __props;
   }
-
+  
+  operator [] (String key) => _props[key];
+  operator []= (String key, value) => _props[key] = value;
 }

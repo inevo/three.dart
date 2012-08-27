@@ -13,6 +13,9 @@ class Material implements IMaterial
   int _blending, _alphaTest, _polygonOffsetFactor, _polygonOffsetUnits;
   bool _transparent, _depthTest, _depthWrite, _polygonOffset, _overdraw;
   
+  // TODO - Check if this is only used in the WebGLRenderer
+  var attributes;
+  
   num get opacity() {  return _opacity;  }
   bool get overdraw() {  return _overdraw;  }
   int get blending() {  return _blending;  }

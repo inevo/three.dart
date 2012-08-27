@@ -33,31 +33,20 @@
 
 class MeshBasicMaterial extends Material implements ITextureMapMaterial
 {
-  Color _color;
-  Texture _map;
+  Color color;
+  Texture map;
   Texture _lightMap;
-  var _envMap; // TextureCube?
+  var envMap; // TextureCube?
   var _combine; // Three.Multiply?
   num _reflectivity;
   num _refractionRatio;
   bool _fog;
   int _shading;
-  bool _wireframe;
-  num _wireframeLinewidth;
-  String _wireframeLinecap, _wireframeLinejoin;
-  bool _vertexColors; //?
+  bool wireframe;
+  num wireframeLinewidth;
+  String wireframeLinecap, wireframeLinejoin;
+  bool vertexColors; //?
   bool _skinning, _morphTargets;
-  
-  Texture get map() {  return _map;  }
-  Dynamic get envMap() {  return _envMap;  }
-  
-  Color get color() {  return _color;  }
-  set color( Color value ) { _color = value;  }
-  
-  bool get wireframe() {  return _wireframe;  }
-  num get wireframeLinewidth() {  return _wireframeLinewidth;  }
-  String get wireframeLinecap() {  return _wireframeLinecap;  }
-  String get wireframeLinejoin() {  return _wireframeLinejoin;  }
   
   MeshBasicMaterial( Map parameters ) : super( parameters )
   {
@@ -65,13 +54,13 @@ class MeshBasicMaterial extends Material implements ITextureMapMaterial
 
     parameters = parameters != null ? parameters : {};
 
-    _color = parameters['color'] !== null ? new Color( parameters['color'] ) : new Color( 0xffffff );
+    color = parameters['color'] !== null ? new Color( parameters['color'] ) : new Color( 0xffffff );
 
-    _map = parameters['map'] !== null ? parameters['map'] : null;
+    map = parameters['map'] !== null ? parameters['map'] : null;
 
     _lightMap = parameters['lightMap'] !== null ? parameters['lightMap'] : null;
 
-    _envMap = parameters['envMap'] !== null ? parameters['envMap'] : null;
+    envMap = parameters['envMap'] !== null ? parameters['envMap'] : null;
     _combine = parameters['combine'] !== null ? parameters['combine'] : Three.MultiplyOperation;
     _reflectivity = parameters['reflectivity'] !== null ? parameters['reflectivity'] : 1;
     _refractionRatio = parameters['refractionRatio'] !== null ? parameters['refractionRatio'] : 0.98;
@@ -80,12 +69,12 @@ class MeshBasicMaterial extends Material implements ITextureMapMaterial
 
     _shading = parameters['shading'] !== null ? parameters['shading'] : Three.SmoothShading;
 
-    _wireframe = parameters['wireframe'] !== null ? parameters['wireframe'] : false;
-    _wireframeLinewidth = parameters['wireframeLinewidth'] !== null ? parameters['wireframeLinewidth'] : 1;
-    _wireframeLinecap = parameters['wireframeLinecap'] !== null ? parameters['wireframeLinecap'] : 'round';
-    _wireframeLinejoin = parameters['wireframeLinejoin'] !== null ? parameters['wireframeLinejoin'] : 'round';
+    wireframe = parameters['wireframe'] !== null ? parameters['wireframe'] : false;
+    wireframeLinewidth = parameters['wireframeLinewidth'] !== null ? parameters['wireframeLinewidth'] : 1;
+    wireframeLinecap = parameters['wireframeLinecap'] !== null ? parameters['wireframeLinecap'] : 'round';
+    wireframeLinejoin = parameters['wireframeLinejoin'] !== null ? parameters['wireframeLinejoin'] : 'round';
 
-    _vertexColors = parameters['vertexColors'] !== null ? parameters['vertexColors'] : false;
+    vertexColors = parameters['vertexColors'] !== null ? parameters['vertexColors'] : false;
 
     _skinning = parameters['skinning'] !== null ? parameters['skinning'] : false;
     _morphTargets = parameters['morphTargets'] !== null ? parameters['morphTargets'] : false;
