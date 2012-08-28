@@ -27,19 +27,19 @@ class CubeGeometry extends Geometry
     if ( materials !== null ) 
     {
       if ( materials is List ) {
-        materials = materials;
+        this.materials = materials;
       } else {
-        materials = [];
+        this.materials = [];
 
         for ( int i = 0; i < 6; i ++ ) {
-          materials.add( materials );
+          this.materials.add( materials );
         }
       }
 
       mpx = 0; mnx = 1; mpy = 2; mny = 3; mpz = 4; mnz = 5;
 
     } else {
-      materials = [];
+      this.materials = [];
     }
 
     //_sides = { "px": true, "nx": true, "py": true, "ny": true, "pz": true, "nz": true };

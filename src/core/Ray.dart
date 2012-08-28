@@ -68,7 +68,7 @@ class Ray
       num distance = distanceFromIntersection( _origin, _direction, object.matrixWorld.getPosition() );
       Vector3 scale = Frustum.__v1.setValues( object.matrixWorld.getColumnX().length(), object.matrixWorld.getColumnY().length(), object.matrixWorld.getColumnZ().length() );
 
-      if ( distance > mesh.geometry.boundingSphere['radius'] * Math.max( scale.x, Math.max( scale.y, scale.z ) ) ) {
+      if ( distance > mesh.geometry.boundingSphere.radius * Math.max( scale.x, Math.max( scale.y, scale.z ) ) ) {
         return intersects;
       }
 
@@ -140,10 +140,10 @@ class Ray
 
           } else if ( face is Face4 ) {
             Face4 face4 = face;
-            a = objMatrix.multiplyVector3( a.copy( vertices[ face4.a ].position ) );
-            b = objMatrix.multiplyVector3( b.copy( vertices[ face4.b ].position ) );
-            c = objMatrix.multiplyVector3( c.copy( vertices[ face4.c ].position ) );
-            d = objMatrix.multiplyVector3( d.copy( vertices[ face4.d ].position ) );
+            a = objMatrix.multiplyVector3( a.copy( vertices[ face4.a ] ) );
+            b = objMatrix.multiplyVector3( b.copy( vertices[ face4.b ] ) );
+            c = objMatrix.multiplyVector3( c.copy( vertices[ face4.c ] ) );
+            d = objMatrix.multiplyVector3( d.copy( vertices[ face4.d ] ) );
 
             if ( pointInFace3( intersectPoint, a, b, d ) || pointInFace3( intersectPoint, b, c, d ) ) 
             {
