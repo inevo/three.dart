@@ -18,7 +18,8 @@ class BufferGeometry {
 	List morphTargets;
 
 	bool verticesNeedUpdate, normalsNeedUpdate, tangentsNeedUpdate;
-	
+	bool elementsNeedUpdate, uvsNeedUpdate,colorsNeedUpdate;
+  
 	var offsets;
 	
 	BufferGeometry() :

@@ -1,8 +1,8 @@
-class Event {
+class EventEmitterEvent {
   String type;
   String message;
   Dynamic content;
-  Event([this.type, this.message, this.content]);
+  EventEmitterEvent([this.type, this.message, this.content]);
 }
 
 class EventEmitter {

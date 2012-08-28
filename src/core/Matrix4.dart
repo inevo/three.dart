@@ -225,7 +225,7 @@ class Matrix4
 
   }
   
-  Vector3 multiplyVector3( Vector3 v ) 
+  IVector3 multiplyVector3( IVector3 v ) 
   {
     num vx = v.x, vy = v.y, vz = v.z,
     d = 1 / ( n41 * vx + n42 * vy + n43 * vz + n44 );
@@ -367,6 +367,13 @@ class Matrix4
     return flat;
   }
 
+  // TODO - Use Float32Array for storage
+  get elements() {
+    Float32Array array = new Float32Array(16);
+    flattenToArray(array);
+    return array;
+  }
+  
   List flattenToArrayOffset( List flat, int offset ) 
   {
     flat[ offset ] = n11;

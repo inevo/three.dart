@@ -4,7 +4,8 @@ class MeshPhongMaterial extends Material implements ITextureMapMaterial {
   Color ambient;
   Color emissive;
   Color specular;
-
+  num shininess;
+  
   bool metal;
   bool perPixel;
 
@@ -25,8 +26,6 @@ class MeshPhongMaterial extends Material implements ITextureMapMaterial {
   num reflectivity;
   num refractionRatio;
 
-  bool fog;
-
   int shading;
 
   bool wireframe;
@@ -34,11 +33,12 @@ class MeshPhongMaterial extends Material implements ITextureMapMaterial {
   var wireframeLinecap;
   var wireframeLinejoin;
 
-  var vertexColors;
-
   bool skinning;
   bool morphTargets;
   bool morphNormals;
+  
+  int vertexColors;
+  bool fog;
   
   MeshPhongMaterial( Map parameters ) : super( parameters ) {
 

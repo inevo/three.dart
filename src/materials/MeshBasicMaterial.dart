@@ -34,19 +34,24 @@
 class MeshBasicMaterial extends Material implements ITextureMapMaterial
 {
   Color color;
+  
   Texture map;
-  Texture _lightMap;
+  Texture lightMap;
+  Texture specularMap;
   var envMap; // TextureCube?
-  var _combine; // Three.Multiply?
-  num _reflectivity;
-  num _refractionRatio;
-  bool _fog;
-  int _shading;
+  var combine; // Three.Multiply?
+  num reflectivity;
+  num refractionRatio;
+
+  int shading;
   bool wireframe;
   num wireframeLinewidth;
   String wireframeLinecap, wireframeLinejoin;
-  bool vertexColors; //?
-  bool _skinning, _morphTargets;
+
+  bool skinning, morphTargets;
+  
+  int vertexColors;
+  bool fog;
   
   MeshBasicMaterial( Map parameters ) : super( parameters )
   {
@@ -54,29 +59,30 @@ class MeshBasicMaterial extends Material implements ITextureMapMaterial
 
     parameters = parameters != null ? parameters : {};
 
-    color = parameters['color'] !== null ? new Color( parameters['color'] ) : new Color( 0xffffff );
-
     map = parameters['map'] !== null ? parameters['map'] : null;
 
-    _lightMap = parameters['lightMap'] !== null ? parameters['lightMap'] : null;
-
+    color = parameters['color'] !== null ? new Color( parameters['color'] ) : new Color( 0xffffff ); //emissive
+    
+    lightMap = parameters['lightMap'] !== null ? parameters['lightMap'] : null;
+    specularMap = parameters['specularMap'] !== null ? parameters['specularMap'] : null;
+    
     envMap = parameters['envMap'] !== null ? parameters['envMap'] : null;
-    _combine = parameters['combine'] !== null ? parameters['combine'] : Three.MultiplyOperation;
-    _reflectivity = parameters['reflectivity'] !== null ? parameters['reflectivity'] : 1;
-    _refractionRatio = parameters['refractionRatio'] !== null ? parameters['refractionRatio'] : 0.98;
+    combine = parameters['combine'] !== null ? parameters['combine'] : Three.MultiplyOperation;
+    reflectivity = parameters['reflectivity'] !== null ? parameters['reflectivity'] : 1;
+    refractionRatio = parameters['refractionRatio'] !== null ? parameters['refractionRatio'] : 0.98;
 
-    _fog = parameters['fog'] !== null ? parameters['fog'] : true;
+    shading = parameters['shading'] !== null ? parameters['shading'] : Three.SmoothShading;
 
-    _shading = parameters['shading'] !== null ? parameters['shading'] : Three.SmoothShading;
+    vertexColors = (null != parameters['vertexColors']) ? parameters['vertexColors'] : Three.NoColors;
 
+    fog = parameters['fog'] !== null ? parameters['fog'] : true;
+    
     wireframe = parameters['wireframe'] !== null ? parameters['wireframe'] : false;
     wireframeLinewidth = parameters['wireframeLinewidth'] !== null ? parameters['wireframeLinewidth'] : 1;
     wireframeLinecap = parameters['wireframeLinecap'] !== null ? parameters['wireframeLinecap'] : 'round';
     wireframeLinejoin = parameters['wireframeLinejoin'] !== null ? parameters['wireframeLinejoin'] : 'round';
 
-    vertexColors = parameters['vertexColors'] !== null ? parameters['vertexColors'] : false;
-
-    _skinning = parameters['skinning'] !== null ? parameters['skinning'] : false;
-    _morphTargets = parameters['morphTargets'] !== null ? parameters['morphTargets'] : false;
+    skinning = parameters['skinning'] !== null ? parameters['skinning'] : false;
+    morphTargets = parameters['morphTargets'] !== null ? parameters['morphTargets'] : false;
   }
 }

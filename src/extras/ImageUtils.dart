@@ -33,7 +33,9 @@ class ImageUtils {
 
 	static Texture loadTextureCube ( array, mapping, onLoad ) {
 
-		var i, l, images = [];
+		var i, l;
+		List<ImageElement> images = [];
+		
 		var texture = new Texture( images, mapping );
 
 		texture.flipY = false;

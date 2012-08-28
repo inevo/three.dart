@@ -11,23 +11,25 @@ class ShaderMaterial extends Material {
   bool wireframe;
   num wireframeLinewidth;
 
-  bool fog; // set to use scene fog
 
   bool lights; // set to use scene lights
-
-  int vertexColors; // set to use "color" attribute stream
 
   bool skinning; // set to use skinning attribute streams
 
   bool morphTargets; // set to use morph targets
   bool morphNormals; // set to use morph normals
 
+  int vertexColors;
+  bool fog;
+  
+  Map attributes;
+  
   ShaderMaterial( Map parameters ) : super( parameters )  {
 
+    attributes =  parameters['attributes'] != null ? parameters['attributes'] : {};
     fragmentShader = parameters['fragmentShader'] != null ? parameters['fragmentShader'] : "void main() {}";
     vertexShader = parameters['vertexShader'] != null ? parameters['vertexShader'] : "void main() {}";
     uniforms = parameters['uniforms'] != null ? parameters['uniforms'] : {};
-    attributes = parameters['attributes'];
 
     shading = parameters['shading'] != null ? parameters['shading'] : Three.SmoothShading;
 
@@ -38,7 +40,7 @@ class ShaderMaterial extends Material {
 
     lights = parameters['lights'] != null ? parameters['lights'] : false; // set to use scene lights
 
-    vertexColors = parameters['vertexColors'] != null ? parameters['vertexColors'] : THREE.NoColors; // set to use "color" attribute stream
+    vertexColors = parameters['vertexColors'] != null ? parameters['vertexColors'] : Three.NoColors; // set to use "color" attribute stream
 
     skinning = parameters['skinning'] != null ? parameters['skinning'] : false; // set to use skinning attribute streams
 

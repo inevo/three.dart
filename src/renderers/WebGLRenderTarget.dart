@@ -19,6 +19,8 @@ class WebGLRenderTarget {
 
 	bool generateMipmaps;
 	
+	var __webglTexture;
+	
 	WebGLRenderTarget ( this.width, this.height, 
 						[ this.wrapS = Three.ClampToEdgeWrapping,
 						  this.wrapT = Three.ClampToEdgeWrapping,

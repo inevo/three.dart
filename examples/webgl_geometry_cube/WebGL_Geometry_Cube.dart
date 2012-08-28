@@ -26,6 +26,8 @@ class WebGL_Geometry_Cube  {
     camera = new PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
     camera.position.z = 400;
 
+    scene.add(camera);
+    
     var geometry = new CubeGeometry( 200, 200, 200 );
     var material = new MeshBasicMaterial( { "map": ImageUtils.loadTexture( 'textures/crate.gif' ) });
 

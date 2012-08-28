@@ -9,11 +9,11 @@ class ImageLoader extends EventEmitter {
 		if ( image == null ) image = new ImageElement();
 
 		image.on.load.add((_) {
-			dispatchEvent( new Event(type: 'load', content: image) );
+			dispatchEvent( new EventEmitterEvent(type: 'load', content: image) );
 		}, false );
 
 		image.on.error.add( (_) {
-			dispatchEvent( new Event(type: 'error', message: "Couldn\'t load URL [$url]" ) );
+			dispatchEvent( new EventEmitterEvent(type: 'error', message: "Couldn\'t load URL [$url]" ) );
 		}, false );
 
 		if ( crossOrigin != null ) image.crossOrigin = crossOrigin;

@@ -84,8 +84,8 @@
 #source('renderers/WebGLRenderer.dart');
 #source('renderers/WebGLRenderTarget.dart');
 #source('renderers/WebGLRenderTargetCube.dart');
+#source('renderers/WebGLShaders.dart');
 #source('renderers/CanvasRenderer.dart');
-#source('renderers/WebGLRenderer.dart');
 
 #source('renderers/renderables/IRenderableObj.dart');
 #source('renderers/renderables/IRenderableFace3.dart');
