@@ -22,7 +22,7 @@ class DirectionalLight extends Light
   
   num get intensity() {  return _intensity;  }
   
-  DirectionalLight( num hex, num intensity, num distance ) : super( hex )
+  DirectionalLight( num hex, [num intensity = 1, num distance = 0]) : super( hex )
   {
     //THREE.Light.call( this, hex );
 

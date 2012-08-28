@@ -25,9 +25,9 @@
 class LineBasicMaterial extends Material
 {
   Color color;
-  num _linewidth;
-  String _linecap;
-  String _linejoin;
+  num linewidth;
+  String linecap;
+  String linejoin;
 
   bool fog, vertexColors;
   
@@ -40,9 +40,9 @@ class LineBasicMaterial extends Material
 
     color = parameters['color'] !== null ? new Color( parameters['color'] ) : new Color( 0xffffff );
 
-    _linewidth = parameters['linewidth'] !== null ? parameters['linewidth'] : 1;
-    _linecap = parameters['linecap'] !== null ? parameters['linecap'] : 'round';
-    _linejoin = parameters['linejoin'] !== null ? parameters['linejoin'] : 'round';
+    linewidth = parameters['linewidth'] !== null ? parameters['linewidth'] : 1;
+    linecap = parameters['linecap'] !== null ? parameters['linecap'] : 'round';
+    linejoin = parameters['linejoin'] !== null ? parameters['linejoin'] : 'round';
 
     vertexColors = (null != parameters['vertexColors']) ? parameters['vertexColors'] : false;
 

@@ -9,10 +9,9 @@
 
 class PerspectiveCamera extends Camera
 {
+
   num fov;
   num aspect;
-  num near;
-  num far;
   
   num _fullWidth;
   num _fullHeight;
@@ -22,7 +21,7 @@ class PerspectiveCamera extends Camera
   num _height;
 
   
-  PerspectiveCamera( [this.fov = 50, this.aspect = 1, this.near = 0.1, this.far = 2000] ) : super()
+  PerspectiveCamera( [this.fov = 50, this.aspect = 1, near = 0.1, far = 2000] ) : super(near, far)
   {
     updateProjectionMatrix();
   }
