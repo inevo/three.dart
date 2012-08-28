@@ -15,8 +15,7 @@ class OrthographicCamera extends Camera {
 		bottom;
 
 	OrthographicCamera( this.left, this.right, this.top, this.bottom, 
-						[near = 0.1, far = 2000] ) : super() {
-    _near = near; _far = far;
+						[near = 0.1, far = 2000] ) : super(near, far) {
 		updateProjectionMatrix();
 	}
 

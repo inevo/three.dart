@@ -237,7 +237,7 @@ class Projector
         for ( v = 0; v < vl; v ++ ) 
         {
           _vertex = getNextVertexInPool();
-          _vertex.positionWorld.copy( vertices[ v ].position );
+          _vertex.positionWorld.copy( vertices[ v ] );
 
           modelMatrix.multiplyVector3( _vertex.positionWorld );
           _vertex.positionScreen.copy( _vertex.positionWorld );

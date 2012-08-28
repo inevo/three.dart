@@ -12,13 +12,10 @@ class Camera extends Object3D
   Matrix4 projectionMatrix;
   Matrix4 projectionMatrixInverse;
   
-  num _near;
-  num _far;
+  num near;
+  num far;
   
-  num get near() {  return _near;  }
-  num get far() {  return _far;  }
-  
-  Camera() 
+  Camera(this.near, this.far) : super()
   {
 
     matrixWorldInverse = new Matrix4();
