@@ -54,7 +54,7 @@ class CurvePath extends Curve {
 	// 4. Return curve.getPointAt(t')
 	getPoint( t ) {
 
-		var d = t * this.getLength();
+		var d = t * this.length;
 		var curveLengths = this.getCurveLengths();
 		var i = 0, diff, curve;
 
@@ -136,9 +136,9 @@ class CurvePath extends Curve {
 
 		var p, i, il, sum;
 
-		var v3 = points[0] is THREE.Vector3;
+		var v3 = points[0] is Vector3;
 		
-		sum = (v3) ? new THREE.Vector3() : new THREE.Vector2();
+		sum = (v3) ? new Vector3() : new Vector2();
 
 		for ( i = 0; i < points.length; i ++ ) {
 

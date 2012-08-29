@@ -339,7 +339,7 @@ class ExtrudeGeometry extends Geometry {
   
     var contourMovements = [];
   
-    var i = 0, 
+    int i = 0, 
         il = contour.length, 
         j = il - 1, 
         k = i + 1;

@@ -94,7 +94,7 @@ abstract class Curve {
 
 		var arcLengths = getLengths();
 
-		var i = 0, il = arcLengths.length;
+		int i = 0, il = arcLengths.length;
 
 		var targetArcLength; // The targeted u distance value to get
 
@@ -112,7 +112,7 @@ abstract class Curve {
 
 		while ( low <= high ) {
 
-			i = ( low + ( high - low ) / 2 ).floor(); // less likely to overflow, though probably not issue here, JS doesn't really have integers, all numbers are floats
+			i = ( low + ( high - low ) / 2 ).floor().toInt(); // less likely to overflow, though probably not issue here, JS doesn't really have integers, all numbers are floats
 
 			comparison = arcLengths[ i ] - targetArcLength;
 
@@ -225,7 +225,7 @@ class SplineCurve3 extends Curve {
 		var c = [];
 		var points = _points, 
 		    point = ( points.length - 1 ) * t, 
-		    intPoint = point.floor, 
+		    intPoint = point.floor(), 
 		    weight = point - intPoint;
 
 		c[ 0 ] = intPoint == 0 ? intPoint : intPoint - 1;
