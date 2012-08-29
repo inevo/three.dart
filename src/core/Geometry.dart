@@ -144,7 +144,7 @@ class Geometry
     int fl = faces.length;
     //TODO: face should be typed
     IFace3 face;
-    Vertex vA, vB, vC;
+    Vector3 vA, vB, vC;
     Vector3 cb = new Vector3(), ab = new Vector3();
 
     for ( f = 0; f < fl; f ++ )

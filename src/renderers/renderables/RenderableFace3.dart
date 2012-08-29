@@ -29,8 +29,11 @@ class RenderableFace3 implements IRenderableFace3
   List get vertexNormalsWorld() {  return _vertexNormalsWorld;  }
   List get uvs() {  return _uvs;  }
   Material get material() {  return _material;  }
+  set material( Material value ) {  _material = value;  }
   Material get faceMaterial() {  return _faceMaterial;  }
+  set faceMaterial( Material value) {  _faceMaterial = value;  }
   num get z() {  return _z;  }
+  set z( num value ) {  _z = value;  }
   
   RenderableFace3() 
   {

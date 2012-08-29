@@ -39,6 +39,7 @@
 
 #source('extras/ImageUtils.dart');
 #source('extras/geometries/CubeGeometry.dart');
+#source('extras/geometries/SphereGeometry.dart');
 #source('extras/geometries/PlaneGeometry.dart');
 #source('extras/geometries/TubeGeometry.dart');
 #source('extras/geometries/ExtrudeGeometry.dart');
