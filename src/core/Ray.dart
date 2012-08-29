@@ -18,7 +18,7 @@ class Ray
   
   Vector3 get origin() => _origin;
   Vector3 get direction() => _direction;
-    
+
   List<Intersect> intersectObject( Object3D object ) 
   {
     Vector3 a = new Vector3();

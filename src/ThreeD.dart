@@ -59,6 +59,9 @@
 #source('extras/objects/LensFlare.dart');
 #source('extras/objects/ImmediateRenderObject.dart');
 
+#source('extras/objects/LensFlare.dart');
+#source('extras/objects/ImmediateRenderObject.dart');
+
 #source('lights/AmbientLight.dart');
 #source('lights/DirectionalLight.dart');
 #source('lights/PointLight.dart');

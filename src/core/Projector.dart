@@ -197,7 +197,7 @@ class Projector
     _renderData.elements = [];
 
     scene.updateMatrixWorld();
-  
+
     if ( camera.parent == null ) {
 //      console.warn( 'DEPRECATED: Camera hasn\'t been added to a Scene. Adding it...' );
       scene.add( camera );
@@ -256,7 +256,6 @@ class Projector
         for ( f = 0; f < fl; f ++ ) 
         {
           face = faces[ f ];
-
           material = isFaceMaterial === true ? geometryMaterials[ face.materialIndex ] : object.material;
 
           if ( material == null ) continue;

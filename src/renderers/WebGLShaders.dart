@@ -1704,6 +1704,7 @@ var __ShaderLib;
 get ShaderLib()  {
   if (__ShaderLib == null) {
     __ShaderLib = {
+
 'depth': {
 
     'uniforms': {
@@ -1779,6 +1780,7 @@ get ShaderLib()  {
     ], "\n")
 
   },
+
 'basic': {
   'uniforms': UniformsUtils.merge( [UniformsLib[ "common" ],
                                     UniformsLib[ "fog" ],
@@ -2204,6 +2206,7 @@ get ShaderLib()  {
     ], "\n")
 
   }
+
     };
   }
   return __ShaderLib;

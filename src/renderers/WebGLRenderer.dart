@@ -449,7 +449,6 @@ class WebGLRenderer implements Renderer {
     
 		if ( program == null ) return;
 
-
 		material.program = null;
 
 		// only deallocate GL program if this was the last use of shared program
@@ -460,7 +459,6 @@ class WebGLRenderer implements Renderer {
 
     var deleteProgram = ( program.usedTimes == 0 );
 
-
 		if ( deleteProgram ) {
 
 			// -avoid using array.splice, this is costlier than creating new array from scratch
@@ -468,7 +466,6 @@ class WebGLRenderer implements Renderer {
 			_programs.removeRange(_programs.indexOf(program), 1);
 
 			_gl.deleteProgram( program.glProgram );
-
 
 			info.memory.programs --;
 
@@ -5334,7 +5331,6 @@ class WebGLRenderer implements Renderer {
         
 				_gl.uniform3fv( location, (value is List) ? new Float32Array.fromList(value) : value );
 
-
 			} else if ( type === "v2v" ) { // array of THREE.Vector2
 
 				if ( uniform._array == null ) {
@@ -5521,7 +5517,6 @@ class WebGLRenderer implements Renderer {
     		poffset = 0,
     		soffset = 0;
 
-
 		ll = lights.length;
 		for ( l = 0; l < ll; l ++ ) {
 
@@ -5538,7 +5533,6 @@ class WebGLRenderer implements Renderer {
   			distance = light.dynamic.distance;
 			}
 			
-
 			if ( light is AmbientLight ) {
 
 				if ( gammaInput ) {
@@ -7034,6 +7028,7 @@ class WebGLMaterial { // implements Material {
   WebGLMaterial._internal(Material material) : _material = material;
   
   factory WebGLMaterial(Material material) {
+
     if (material["__webglMaterial"] == null) {
       var webglMaterial = new WebGLMaterial._internal(material);
       material["__webglMaterial"] = webglMaterial;
