@@ -18,7 +18,7 @@ class Ray
   
   Vector3 get origin() => _origin;
   Vector3 get direction() => _direction;
-    
+
   List<Intersect> intersectObject( Object3D object ) 
   {
     Vector3 a = new Vector3();
@@ -181,7 +181,7 @@ class Ray
       intersects.addAll(intersectObject( objects[ i ] ));
     }
 
-    intersects.sort( function ( a, b ) { return a.distance - b.distance; } );
+    intersects.sort( ( a, b ) => a.distance.compareTo(b.distance) );
 
     return intersects;
   }

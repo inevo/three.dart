@@ -52,7 +52,6 @@ class Canvas_Interactive_Cubes
     CubeGeometry geometry = new CubeGeometry( 100, 100, 100 );
 
     var rnd = new Math.Random();
-    
     for ( int i = 0; i < 10; i ++ )
     {
       Particle particle = new Particle( particleMaterial );

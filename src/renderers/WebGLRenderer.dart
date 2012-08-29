@@ -62,8 +62,8 @@ class WebGLRenderer implements Renderer {
 
 	/** Internal properties **/
 
-	List _programs = [];
-	int _programs_counter = 0;
+	List _programs;
+	int _programs_counter;
 
 	// internal state cache
 	var _currentProgram = null,
@@ -111,6 +111,7 @@ class WebGLRenderer implements Renderer {
   // light arrays cache
   Vector3 _direction;
 
+  Map _lights;
   bool _lightsNeedUpdate;
 
   // GL Extensions
@@ -125,6 +126,8 @@ class WebGLRenderer implements Renderer {
 
   var shadowMapPlugin;
   
+  num maxVertexTextures, maxTextureSize, maxCubemapSize;
+      
   WebGLRenderer( [	this.canvas, 
   					this.precision = PRECISION_HIGH, 
   					this.alpha = true,
@@ -227,19 +230,22 @@ class WebGLRenderer implements Renderer {
   // light arrays cache
 
   _direction = new Vector3(),
-
+  
   _lightsNeedUpdate = true
-
-  /*
-  _lights = {
-
-    ambient: [ 0, 0, 0 ],
-    directional: { length: 0, colors: new Array(), positions: new Array() },
-    point: { length: 0, colors: new Array(), positions: new Array(), distances: new Array() },
-    spot: { length: 0, colors: new Array(), positions: new Array(), distances: new Array(), directions: new Array(), angles: new Array(), exponents: new Array() }
-
-  };*/ {
+  
+  {
   		  
+	  _lights = {
+
+	    "ambient": [ 0, 0, 0 ],
+	    "directional": { "length": 0, "colors": [], "positions": [] },
+	    "point": { "length": 0, "colors": [], "positions": [], "distances": [] },
+	    "spot": { "length": 0, "colors": [], "positions": [], "distances": [], "directions": [], "angles": [], "exponents": [] }
+
+	  };
+  		 
+	  
+	  
     if (canvas == null) {
         canvas = new CanvasElement();
     }
@@ -257,13 +263,13 @@ class WebGLRenderer implements Renderer {
   
   	// GPU capabilities
   
-  	num _maxVertexTextures = _gl.getParameter( WebGLRenderingContext.MAX_VERTEX_TEXTURE_IMAGE_UNITS ),
-	  	  _maxTextureSize = _gl.getParameter( WebGLRenderingContext.MAX_TEXTURE_SIZE ),
-	  	  _maxCubemapSize = _gl.getParameter( WebGLRenderingContext.MAX_CUBE_MAP_TEXTURE_SIZE );
+  	maxVertexTextures = _gl.getParameter( WebGLRenderingContext.MAX_VERTEX_TEXTURE_IMAGE_UNITS );
+	  maxTextureSize = _gl.getParameter( WebGLRenderingContext.MAX_TEXTURE_SIZE );
+	  maxCubemapSize = _gl.getParameter( WebGLRenderingContext.MAX_CUBE_MAP_TEXTURE_SIZE );
   
   	maxAnisotropy = (_glExtensionTextureFilterAnisotropic != null) ? _gl.getParameter( EXTTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT ) : 0;
   
-  	supportsVertexTextures = ( _maxVertexTextures > 0 );
+  	supportsVertexTextures = ( maxVertexTextures > 0 );
   	supportsBoneTextures = supportsVertexTextures && (_glExtensionTextureFloat != null);
   
   
@@ -277,11 +283,11 @@ class WebGLRenderer implements Renderer {
   	
   }
 
-  Element get domElement => canvas;
+  Element get domElement() => canvas;
   
 	// API
 
-	get context => _gl;
+	get context() => _gl;
 
 
 	setSize( width, height ) {
@@ -413,25 +419,25 @@ class WebGLRenderer implements Renderer {
 
 	}
 
-	deallocateRenderTarget( Dynamic renderTarget ) {
+	deallocateRenderTarget( WebGLRenderTarget renderTarget ) {
 
-		if ( (renderTarget == null) || ! renderTarget["__webglTexture"] ) return;
+		if ( (renderTarget == null) || (renderTarget.__webglTexture == null) ) return;
 
-		_gl.deleteTexture( renderTarget["__webglTexture"] );
+		_gl.deleteTexture( renderTarget.__webglTexture );
 
 		if ( renderTarget is WebGLRenderTargetCube ) {
 
 			for ( var i = 0; i < 6; i ++ ) {
 
-				_gl.deleteFramebuffer( renderTarget["__webglFramebuffer"][ i ] );
-				_gl.deleteRenderbuffer( renderTarget["__webglRenderbuffer"][ i ] );
+				_gl.deleteFramebuffer( renderTarget.__webglFramebuffer[ i ] );
+				_gl.deleteRenderbuffer( renderTarget.__webglRenderbuffer[ i ] );
 
 			}
 
 		} else {
 
-			_gl.deleteFramebuffer( renderTarget["__webglFramebuffer"] );
-			_gl.deleteRenderbuffer( renderTarget["__webglRenderbuffer"] );
+			_gl.deleteFramebuffer( renderTarget.__webglFramebuffer );
+			_gl.deleteRenderbuffer( renderTarget.__webglRenderbuffer );
 
 		}
 
@@ -439,9 +445,9 @@ class WebGLRenderer implements Renderer {
 
 	deallocateMaterial( material ) {
 
-		var program = material.program;
-
-		if ( ! program ) return;
+		Program program = material.program;
+    
+		if ( program == null ) return;
 
 		material.program = null;
 
@@ -449,54 +455,17 @@ class WebGLRenderer implements Renderer {
 		// assumed there is only single copy of any program in the _programs list
 		// (that's how it's constructed)
 
-		var i, il, programInfo;
-		var deleteProgram = false;
+		program.usedTimes --;
 
-		il = _programs.length;
-
-		for ( i = 0; i < il; i ++ ) {
-
-			programInfo = _programs[ i ];
-
-			if ( programInfo.program === program ) {
-
-				programInfo.usedTimes --;
-
-				if ( programInfo.usedTimes === 0 ) {
-
-					deleteProgram = true;
-
-				}
-
-				break;
-
-			}
-
-		}
+    var deleteProgram = ( program.usedTimes == 0 );
 
 		if ( deleteProgram ) {
 
-			// avoid using array.splice, this is costlier than creating new array from scratch
+			// -avoid using array.splice, this is costlier than creating new array from scratch
 
-			var newPrograms = [];
+			_programs.removeRange(_programs.indexOf(program), 1);
 
-			il = _programs.length;
-
-			for ( i = 0; i < il; i ++ ) {
-
-				programInfo = _programs[ i ];
-
-				if ( programInfo.program !== program ) {
-
-					newPrograms.add( programInfo );
-
-				}
-
-			}
-
-			_programs = newPrograms;
-
-			_gl.deleteProgram( program );
+			_gl.deleteProgram( program.glProgram );
 
 			info.memory.programs --;
 
@@ -799,7 +768,7 @@ class WebGLRenderer implements Renderer {
 
 		geometryGroup.__vertexArray = new Float32Array( nvertices * 3 );
 
-		if ( normalType ) {
+		if ( normalType != Three.NoShading ) {
 
 			geometryGroup.__normalArray = new Float32Array( nvertices * 3 );
 
@@ -904,26 +873,27 @@ class WebGLRenderer implements Renderer {
 
 				}
 
-				if( !attribute["__webglInitialized"] || attribute.createUniqueBuffers ) {
+				if( ( attribute["__webglInitialized"] == null ||  attribute["__webglInitialized"] == false) || 
+				    ( attribute["createUniqueBuffers"] != null && attribute["createUniqueBuffers"]) ) {
 
 					attribute["__webglInitialized"] = true;
 
 					var size = 1;		// "f" and "i"
 
-					if( attribute.type === "v2" ) size = 2;
-					else if( attribute.type === "v3" ) size = 3;
-					else if( attribute.type === "v4" ) size = 4;
-					else if( attribute.type === "c"  ) size = 3;
+					if( attribute["type"] === "v2" ) size = 2;
+					else if( attribute["type"] === "v3" ) size = 3;
+					else if( attribute["type"] === "v4" ) size = 4;
+					else if( attribute["type"] === "c"  ) size = 3;
 
-					attribute.size = size;
+					attribute["size"] = size;
 
-					attribute.array = new Float32Array( nvertices * size );
+					attribute["array"] = new Float32Array( nvertices * size );
 
-					attribute.buffer = _gl.createBuffer();
-					attribute.buffer.belongsToAttribute = a;
+					attribute["buffer"] = _gl.createBuffer();
+					attribute["buffer"].belongsToAttribute = a; // TODO
 
 					originalAttribute.needsUpdate = true;
-					attribute.__original = originalAttribute;
+					attribute["__original"] = originalAttribute;
 
 				}
 
@@ -955,12 +925,12 @@ class WebGLRenderer implements Renderer {
 	}
 
 
-	bufferGuessNormalType ( WebGLMaterial material ) {
+	int bufferGuessNormalType ( WebGLMaterial material ) {
 
 		// only MeshBasicMaterial and MeshDepthMaterial don't need normals
 
 		if ( !material.needsNormals  ) {
-			return false;
+			return Three.NoShading;
 		}
 
 		if ( material.needsSmoothNormals ) {
@@ -975,7 +945,7 @@ class WebGLRenderer implements Renderer {
 
 	}
 
-	bufferGuessVertexColorType ( material ) {
+	bool bufferGuessVertexColorType ( material ) {
 
 		if ( (material.vertexColors != null) &&  (material.vertexColors != Three.NoColors) ) {
 
@@ -987,7 +957,7 @@ class WebGLRenderer implements Renderer {
 
 	}
 
-	bufferGuessUVType ( material ) {
+	bool bufferGuessUVType ( material ) {
 
 		// material must use some texture to require uvs
 
@@ -1109,7 +1079,7 @@ class WebGLRenderer implements Renderer {
 
 					customAttribute = customAttributes[ i ];
 
-					if ( ! ( customAttribute.boundTo === undefined || customAttribute.boundTo === "vertices" ) ) continue;
+					if ( ! ( customAttribute.boundTo == null || customAttribute.boundTo === "vertices" ) ) continue;
 
 					offset = 0;
 
@@ -2295,7 +2265,7 @@ class WebGLRenderer implements Renderer {
 
 		}
 
-		if ( dirtyNormals && normalType ) {
+		if ( dirtyNormals && (normalType != Three.NoShading) ) {
 
 			fl = chunk_faces3.length;
 			for ( f = 0; f < fl; f ++ ) {
@@ -2468,7 +2438,7 @@ class WebGLRenderer implements Renderer {
 				face = obj_faces[ fi ];
 				uv2 = obj_uvs2[ fi ];
 
-				if ( uv2 === undefined ) continue;
+				if ( uv2 == null ) continue;
 
 				for ( i = 0; i < 4; i ++ ) {
 
@@ -3698,7 +3668,8 @@ class WebGLRenderer implements Renderer {
 
 			// find the most influencing
 
-			var influence, activeInfluenceIndices = [];
+			var influence;
+			List<List> activeInfluenceIndices = [];
 			var influences = object.morphTargetInfluences;
 			var i, il = influences.length;
 
@@ -3733,7 +3704,7 @@ class WebGLRenderer implements Renderer {
 
 			while ( m < material.numSupportedMorphTargets ) {
 
-				if ( activeInfluenceIndices[ m ] ) {
+				if ( activeInfluenceIndices[ m ] != null && !activeInfluenceIndices[ m ].isEmpty()) {
 
 					influenceIndex = activeInfluenceIndices[ m ][ 0 ];
 
@@ -3782,9 +3753,9 @@ class WebGLRenderer implements Renderer {
 
 	// Sorting
 
-	painterSort ( a, b ) => b.z - a.z;
+	painterSort ( a, b ) => (b.z - a.z).toInt();
 
-	numericalSort ( a, b ) => b[ 1 ] - a[ 1 ];
+	numericalSort ( a, b ) => (b[ 1 ] - a[ 1 ]).toInt();
 
 
 	// Rendering
@@ -4025,7 +3996,7 @@ class WebGLRenderer implements Renderer {
 
 	renderObjects (  List<WebGLObject>renderList, 
 	                 bool reverse, String materialType, 
-	                 Camera camera, 
+	                 WebGLCamera camera, 
 	                 List<Light> lights, 
 	                 fog, 
 	                 useBlending, 
@@ -4230,8 +4201,9 @@ class WebGLRenderer implements Renderer {
 	sortFacesByMaterial ( geometry ) {
 
 		var f, fl, face, materialIndex, vertices,
-			materialHash, groupHash,
-			hash_map = {};
+			materialHash, groupHash;
+		
+		Map<String, Map> hash_map = {};
 
 		var numMorphTargets = geometry.morphTargets.length;
 		var numMorphNormals = geometry.morphNormals.length;
@@ -4264,7 +4236,7 @@ class WebGLRenderer implements Renderer {
 
 			if ( geometry.geometryGroups[ groupHash ].vertices + vertices > 65535 ) {
 
-				hash_map[ materialHash ].counter += 1;
+				hash_map[ materialHash ]["counter"] += 1;
 				groupHash = "${hash_map[ materialHash ]["hash"]}_${hash_map[ materialHash ]["counter"]}";
 
 				if ( geometry.geometryGroups[ groupHash ] == null ) {
@@ -4465,7 +4437,7 @@ class WebGLRenderer implements Renderer {
 				geometry = object.geometry;
 				addBuffer( scene["__webglObjects"], geometry, object );
 
-			} else if ( object is ImmediateRenderObject || object.immediateRenderCallback ) {
+			} else if ( object is ImmediateRenderObject ) { // TODO - check if this is needed: || object.immediateRenderCallback != null) {
 
 				addBufferImmediate( scene["__webglObjectsImmediate"], object );
 
@@ -4513,7 +4485,9 @@ class WebGLRenderer implements Renderer {
 	updateObject ( object ) {
 
 		var geometry = object.geometry,
-			geometryGroup, customAttributesDirty, material;
+			geometryGroup, customAttributesDirty;
+		
+		WebGLMaterial material;
 
 		if ( object is Mesh ) {
 
@@ -4833,7 +4807,7 @@ class WebGLRenderer implements Renderer {
 
 			for ( i = 0; i < maxMorphTargets; i ++ ) {
 
-				id = base + i;
+				id = "$base$i";
 
 				if ( attributes[ id ] >= 0 ) {
 
@@ -4854,7 +4828,7 @@ class WebGLRenderer implements Renderer {
 
 			for ( i = 0; i < maxMorphNormals; i ++ ) {
 
-				id = base + i;
+				id = "$base$i";
 
 				if ( attributes[ id ] >= 0 ) {
 
@@ -4881,7 +4855,7 @@ class WebGLRenderer implements Renderer {
 
 	}
 
-	setProgram( camera, lights, fog, material, object ) {
+	setProgram( WebGLCamera camera, List lights, Fog fog, WebGLMaterial material, object ) {
 
 		if ( material.needsUpdate ) {
 
@@ -4953,7 +4927,7 @@ class WebGLRenderer implements Renderer {
 
 				}
 
-				refreshUniformsLights( m_uniforms, lights );
+				refreshUniformsLights( m_uniforms, _lights );
 
 			}
 
@@ -5171,7 +5145,7 @@ class WebGLRenderer implements Renderer {
 
 	}
 
-	refreshUniformsFog ( uniforms, fog ) {
+	refreshUniformsFog ( uniforms, Fog fog ) {
 
 		uniforms["fogColor"].value = fog.color;
 
@@ -5236,23 +5210,23 @@ class WebGLRenderer implements Renderer {
 
 	}
 
-	refreshUniformsLights ( uniforms, lights ) {
+	refreshUniformsLights ( Map<String, Uniform> uniforms, Map lights ) {
 
-		uniforms["ambientLightColor"].value = lights.ambient;
+		uniforms["ambientLightColor"].value = lights["ambient"];
 
-		uniforms["directionalLightColor"].value = lights.directional.colors;
-		uniforms["directionalLightDirection"].value = lights.directional.positions;
+		uniforms["directionalLightColor"].value = lights["directional"]["colors"];
+		uniforms["directionalLightDirection"].value = lights["directional"]["positions"];
 
-		uniforms["pointLightColor"].value = lights.point.colors;
-		uniforms["pointLightPosition"].value = lights.point.positions;
-		uniforms["pointLightDistance"].value = lights.point.distances;
+		uniforms["pointLightColor"].value = lights["point"]["colors"];
+		uniforms["pointLightPosition"].value = lights["point"]["positions"];
+		uniforms["pointLightDistance"].value = lights["point"]["distances"];
 
-		uniforms["spotLightColor"].value = lights.spot.colors;
-		uniforms["spotLightPosition"].value = lights.spot.positions;
-		uniforms["spotLightDistance"].value = lights.spot.distances;
-		uniforms["spotLightDirection"].value = lights.spot.directions;
-		uniforms["spotLightAngle"].value = lights.spot.angles;
-		uniforms["spotLightExponent"].value = lights.spot.exponents;
+		uniforms["spotLightColor"].value = lights["spot"]["colors"];
+		uniforms["spotLightPosition"].value = lights["spot"]["positions"];
+		uniforms["spotLightDistance"].value = lights["spot"]["distances"];
+		uniforms["spotLightDirection"].value = lights["spot"]["directions"];
+		uniforms["spotLightAngle"].value = lights["spot"]["angles"];
+		uniforms["spotLightExponent"].value = lights["spot"]["exponents"];
 
 	}
 
@@ -5354,8 +5328,8 @@ class WebGLRenderer implements Renderer {
 				_gl.uniform1fv( location, value );
 
 			} else if ( type === "fv" ) { // flat array of floats with 3 x N size (JS or typed array)
-
-				_gl.uniform3fv( location, value );
+        
+				_gl.uniform3fv( location, (value is List) ? new Float32Array.fromList(value) : value );
 
 			} else if ( type === "v2v" ) { // array of THREE.Vector2
 
@@ -5513,47 +5487,52 @@ class WebGLRenderer implements Renderer {
 
 	}
 
-	setupLights ( program, lights ) {
+	setupLights ( Program program, List<Light> lights ) {
 
 		var l, ll, light, n,
 		r = 0, g = 0, b = 0,
 		color, position, intensity, distance,
 
-		zlights = lights,
+		zlights = _lights;
 
-		dcolors = zlights.directional.colors,
-		dpositions = zlights.directional.positions,
+		List dcolors = zlights["directional"]["colors"],
+		     dpositions = zlights["directional"]["positions"],
+		     
+		     pcolors = zlights["point"]["colors"],
+		     ppositions = zlights["point"]["positions"],
+      	 pdistances = zlights["point"]["distances"],
+      
+      	 scolors = zlights["spot"]["colors"],
+      	 spositions = zlights["spot"]["positions"],
+      	 sdistances = zlights["spot"]["distances"],
+      	 sdirections = zlights["spot"]["directions"],
+      	 sangles = zlights["spot"]["angles"],
+      	 sexponents = zlights["spot"]["exponents"];
 
-		pcolors = zlights.point.colors,
-		ppositions = zlights.point.positions,
-		pdistances = zlights.point.distances,
-
-		scolors = zlights.spot.colors,
-		spositions = zlights.spot.positions,
-		sdistances = zlights.spot.distances,
-		sdirections = zlights.spot.directions,
-		sangles = zlights.spot.angles,
-		sexponents = zlights.spot.exponents,
-
-		dlength = 0,
-		plength = 0,
-		slength = 0,
-
-		doffset = 0,
-		poffset = 0,
-		soffset = 0;
+		var dlength = 0,
+    		plength = 0,
+    		slength = 0,
+    
+    		doffset = 0,
+    		poffset = 0,
+    		soffset = 0;
 
 		ll = lights.length;
 		for ( l = 0; l < ll; l ++ ) {
 
 			light = lights[ l ];
 
-			if ( light.onlyShadow || ! light.visible ) continue;
+			// TODO - Setup proper interfaces for Light to avoid type checks
+			if ( (((light is DirectionalLight) || (light is SpotLight)) && light.dynamic.onlyShadow) || 
+			    ! light.visible ) continue;
 
 			color = light.color;
-			intensity = light.intensity;
-			distance = light.distance;
-
+			
+			if ( (light is DirectionalLight) || (light is SpotLight) || (light is PointLight)) {
+  			intensity = light.dynamic.intensity;
+  			distance = light.dynamic.distance;
+			}
+			
 			if ( light is AmbientLight ) {
 
 				if ( gammaInput ) {
@@ -5574,6 +5553,10 @@ class WebGLRenderer implements Renderer {
 
 				doffset = dlength * 3;
 
+				// Grow the lists
+				dcolors.length = doffset + 3;
+				dpositions.length = doffset + 3;
+				
 				if ( gammaInput ) {
 
 					dcolors[ doffset ]     = color.r * color.r * intensity * intensity;
@@ -5602,6 +5585,10 @@ class WebGLRenderer implements Renderer {
 
 				poffset = plength * 3;
 
+        // Grow the lists
+				pcolors.length = poffset + 3;
+				ppositions.length = poffset + 3;
+				
 				if ( gammaInput ) {
 
 					pcolors[ poffset ]     = color.r * color.r * intensity * intensity;
@@ -5630,6 +5617,12 @@ class WebGLRenderer implements Renderer {
 
 				soffset = slength * 3;
 
+        // Grow the lists
+				scolors.length = soffset + 3;
+				spositions.length = soffset + 3;
+				sdirections.length = soffset + 3;
+				sdistances.length = slength + 1;
+				
 				if ( gammaInput ) {
 
 					scolors[ soffset ]     = color.r * color.r * intensity * intensity;
@@ -5676,13 +5669,13 @@ class WebGLRenderer implements Renderer {
 		ll = pcolors.length; for ( l = plength * 3; l < ll; l ++ ) pcolors[ l ] = 0.0;
 		ll = scolors.length; for ( l = slength * 3; l < ll; l ++ ) scolors[ l ] = 0.0;
 
-		zlights.directional.length = dlength;
-		zlights.point.length = plength;
-		zlights.spot.length = slength;
+		zlights["directional"]["length"] = dlength;
+		zlights["point"]["length"] = plength;
+		zlights["spot"]["length"] = slength;
 
-		zlights.ambient[ 0 ] = r;
-		zlights.ambient[ 1 ] = g;
-		zlights.ambient[ 2 ] = b;
+		zlights["ambient"][ 0 ] = r;
+		zlights["ambient"][ 1 ] = g;
+		zlights["ambient"][ 2 ] = b;
 
 	}
 
@@ -5993,15 +5986,15 @@ class WebGLRenderer implements Renderer {
 		pl = _programs.length;
 		for ( p = 0; p < pl; p ++ ) {
 
-			var programInfo = _programs[ p ];
+			Program program = _programs[ p ];
 
-			if ( programInfo.code === code ) {
+			if ( program.code === code ) {
 
 				// console.log( "Code already compiled." /*: \n\n" + code*/ );
 
-				programInfo.usedTimes ++;
+			  program.usedTimes ++;
 
-				return programInfo.program;
+				return program;
 
 			}
 
@@ -6443,7 +6436,7 @@ class WebGLRenderer implements Renderer {
 
 	}
 
-	setCubeTexture ( texture, slot ) {
+	setCubeTexture ( Texture texture, slot ) {
 
 		if ( texture.image.length === 6 ) {
 
@@ -6458,7 +6451,7 @@ class WebGLRenderer implements Renderer {
 				_gl.activeTexture( WebGLRenderingContext.TEXTURE0 + slot );
 				_gl.bindTexture( WebGLRenderingContext.TEXTURE_CUBE_MAP, texture.image["__webglTextureCube"] );
 
-				_gl.pixelStorei( WebGLRenderingContext.UNPACK_FLIP_Y_WEBGL, texture.flipY );
+				_gl.pixelStorei( WebGLRenderingContext.UNPACK_FLIP_Y_WEBGL, (texture.flipY) ? 1 : 0 );
 
 				var cubeImage = [];
 
@@ -6477,7 +6470,7 @@ class WebGLRenderer implements Renderer {
 				}
 
 				var image = cubeImage[ 0 ],
-				isImagePowerOfTwo = isPowerOfTwo( image.width ) && isPowerOfTwo( image.height ),
+				isImagePowerOfTwo = isPowerOfTwo( image.dynamic.width ) && isPowerOfTwo( image.dynamic.height ),
 				glFormat = paramThreeToGL( texture.format ),
 				glType = paramThreeToGL( texture.type );
 
@@ -6554,16 +6547,16 @@ class WebGLRenderer implements Renderer {
 
 	}
 
-	setRenderTarget ( renderTarget ) {
+	setRenderTarget ( WebGLRenderTarget renderTarget ) {
 
 		var isCube = ( renderTarget is WebGLRenderTargetCube );
 
-		if ( (renderTarget != null ) && ( renderTarget["__webglFramebuffer"] == null) ) {
+		if ( (renderTarget != null ) && ( renderTarget.__webglFramebuffer == null) ) {
 
 			if ( renderTarget.depthBuffer == null ) renderTarget.depthBuffer = true;
 			if ( renderTarget.stencilBuffer == null ) renderTarget.stencilBuffer = true;
 
-			renderTarget["__webglTexture"] = _gl.createTexture();
+			renderTarget.__webglTexture = _gl.createTexture();
 
 			// Setup texture, create render and frame buffers
 
@@ -6573,21 +6566,21 @@ class WebGLRenderer implements Renderer {
 
 			if ( isCube ) {
 
-				renderTarget["__webglFramebuffer"] = [];
-				renderTarget["__webglRenderbuffer"] = [];
+				renderTarget.__webglFramebuffer = [];
+				renderTarget.__webglRenderbuffer = [];
 
-				_gl.bindTexture( WebGLRenderingContext.TEXTURE_CUBE_MAP, renderTarget["__webglTexture"] );
+				_gl.bindTexture( WebGLRenderingContext.TEXTURE_CUBE_MAP, renderTarget.__webglTexture );
 				setTextureParameters( WebGLRenderingContext.TEXTURE_CUBE_MAP, renderTarget, isTargetPowerOfTwo );
 
 				for ( var i = 0; i < 6; i ++ ) {
 
-					renderTarget["__webglFramebuffer"][ i ] = _gl.createFramebuffer();
-					renderTarget["__webglRenderbuffer"][ i ] = _gl.createRenderbuffer();
+					renderTarget.__webglFramebuffer[ i ] = _gl.createFramebuffer();
+					renderTarget.__webglRenderbuffer[ i ] = _gl.createRenderbuffer();
 
 					_gl.texImage2D( WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, glFormat, renderTarget.width, renderTarget.height, 0, glFormat, glType, null );
 
-					setupFrameBuffer( renderTarget["__webglFramebuffer"][ i ], renderTarget, WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + i );
-					setupRenderBuffer( renderTarget["__webglRenderbuffer"][ i ], renderTarget );
+					setupFrameBuffer( renderTarget.__webglFramebuffer[ i ], renderTarget, WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + i );
+					setupRenderBuffer( renderTarget.__webglRenderbuffer[ i ], renderTarget );
 
 				}
 
@@ -6595,16 +6588,16 @@ class WebGLRenderer implements Renderer {
 
 			} else {
 
-				renderTarget["__webglFramebuffer"] = _gl.createFramebuffer();
-				renderTarget["__webglRenderbuffer"] = _gl.createRenderbuffer();
+				renderTarget.__webglFramebuffer = _gl.createFramebuffer();
+				renderTarget.__webglRenderbuffer = _gl.createRenderbuffer();
 
-				_gl.bindTexture( WebGLRenderingContext.TEXTURE_2D, renderTarget["__webglTexture"] );
+				_gl.bindTexture( WebGLRenderingContext.TEXTURE_2D, renderTarget.__webglTexture );
 				setTextureParameters( WebGLRenderingContext.TEXTURE_2D, renderTarget, isTargetPowerOfTwo );
 
 				_gl.texImage2D( WebGLRenderingContext.TEXTURE_2D, 0, glFormat, renderTarget.width, renderTarget.height, 0, glFormat, glType, null );
 
-				setupFrameBuffer( renderTarget["__webglFramebuffer"], renderTarget, WebGLRenderingContext.TEXTURE_2D );
-				setupRenderBuffer( renderTarget["__webglRenderbuffer"], renderTarget );
+				setupFrameBuffer( renderTarget.__webglFramebuffer, renderTarget, WebGLRenderingContext.TEXTURE_2D );
+				setupRenderBuffer( renderTarget.__webglRenderbuffer, renderTarget );
 
 				if ( isTargetPowerOfTwo ) _gl.generateMipmap( WebGLRenderingContext.TEXTURE_2D );
 
@@ -6633,11 +6626,11 @@ class WebGLRenderer implements Renderer {
 
 			if ( isCube ) {
 
-				framebuffer = renderTarget["__webglFramebuffer"][ renderTarget.activeCubeFace ];
+				framebuffer = renderTarget.__webglFramebuffer[ (renderTarget as WebGLRenderTargetCube).activeCubeFace ];
 
 			} else {
 
-				framebuffer = renderTarget["__webglFramebuffer"];
+				framebuffer = renderTarget.__webglFramebuffer;
 
 			}
 
@@ -6779,8 +6772,8 @@ class WebGLRenderer implements Renderer {
 			//  - limit here is ANGLE's 254 max uniform vectors
 			//    (up to 54 should be safe)
 
-			var nVertexUniforms = _gl.getParameter( WebGLRenderingContext.MAX_VERTEX_UNIFORM_VECTORS );
-			var nVertexMatrices = ( ( nVertexUniforms - 20 ) / 4 ).floor().toInt();
+			int nVertexUniforms = _gl.getParameter( WebGLRenderingContext.MAX_VERTEX_UNIFORM_VECTORS );
+			int nVertexMatrices = ( ( nVertexUniforms - 20 ) / 4 ).floor().toInt();
 
 			var maxBones = nVertexMatrices;
 
@@ -6790,7 +6783,7 @@ class WebGLRenderer implements Renderer {
 
 				if ( maxBones < object.bones.length ) {
 
-					print( "WebGLRenderer: too many bones - " + object.bones.length + ", this GPU supports just " + maxBones + " (try OpenGL instead of ANGLE)" );
+					print( "WebGLRenderer: too many bones - ${object.bones.length} , this GPU supports just $maxBones  (try OpenGL instead of ANGLE)" );
 
 				}
 
@@ -6802,7 +6795,7 @@ class WebGLRenderer implements Renderer {
 
 	}
 
-	allocateLights ( lights ) {
+	allocateLights ( List<Light> lights ) {
 
 		var l, ll, light, dirLights, pointLights, spotLights, maxDirLights, maxPointLights, maxSpotLights;
 
@@ -6813,7 +6806,8 @@ class WebGLRenderer implements Renderer {
 
 			light = lights[ l ];
 
-			if ( light.onlyShadow ) continue;
+			if ( (( light is DirectionalLight ) || ( light is SpotLight )) &&
+			    light.dynamic.onlyShadow ) continue;
 
 			if ( light is DirectionalLight ) dirLights ++;
 			if ( light is PointLight ) pointLights ++;
@@ -6871,7 +6865,7 @@ class WebGLRenderer implements Renderer {
 
 			}
 
-		} catch ( error ) {
+		} catch ( var error ) {
 
 			print( error );
 
@@ -6970,7 +6964,7 @@ class WebGLObject {
 	WebGLMaterial opaque, transparent;
 	bool render;
 	var z;
-	WebGLObject([this.object, this.opaque, this.transparent, this.buffer, this.render = true]);
+	WebGLObject([this.object, this.opaque, this.transparent, this.buffer, this.render = true, this.z = 0]);
 }
 
 class GeometryBuffer {
@@ -7017,7 +7011,7 @@ class GeometryBuffer {
   GeometryBuffer([this.faces3, this.faces4, this.materialIndex = 0, this.vertices = 0, this.numMorphTargets = 0, this.numMorphNormals = 0]);
 }
 
-class WebGLMaterial implements Material {
+class WebGLMaterial { // implements Material {
   Material _material;
   
   var program;
@@ -7026,9 +7020,15 @@ class WebGLMaterial implements Material {
   var _uniforms;
   var uniformsList;
   
+  num numSupportedMorphTargets, numSupportedMorphNormals;
+  
+  // Used by ShadowMapPlugin
+  bool _shadowPass;
+  
   WebGLMaterial._internal(Material material) : _material = material;
   
   factory WebGLMaterial(Material material) {
+
     if (material["__webglMaterial"] == null) {
       var webglMaterial = new WebGLMaterial._internal(material);
       material["__webglMaterial"] = webglMaterial;
@@ -7048,7 +7048,7 @@ class WebGLMaterial implements Material {
   bool get needsSmoothNormals()
     => (_material != null) && (shading != null) && (shading == Three.SmoothShading);
 
-// only MeshBasicMaterial and MeshDepthMaterial don't need normals
+  // only MeshBasicMaterial and MeshDepthMaterial don't need normals
   bool get needsNormals() 
     => ! (( _material is MeshBasicMaterial && (envMap == null) ) || _material is MeshDepthMaterial);
       
@@ -7069,51 +7069,41 @@ class WebGLMaterial implements Material {
   bool get polygonOffset() => _material.polygonOffset; 
   bool get overdraw() => _material.overdraw;
   bool get visible() => _material.visible;
-  
   bool get needsUpdate() => _material.needsUpdate;
   set needsUpdate(bool flag) => _material.needsUpdate = flag;
   
   // TODO - Define proper interfaces to remove use of Dynamic
-  get vertexColors() => _material.dynamic.vertexColors;
+  int get vertexColors() => _hasVertexColors ? _material.dynamic.vertexColors : Three.NoColors;
   get color() => _material.dynamic.color;
+  get ambient() => _material.dynamic.ambient;
+  get emissive() => _material.dynamic.emissive;
   
-  get lights() => (isShaderMaterial)? (_material as ShaderMaterial).lights : false;
+  get lights() => isShaderMaterial ? (_material as ShaderMaterial).lights : false;
   
-  get morphTargets() { 
-    if (isMeshBasicMaterial || isMeshLambertMaterial || isMeshPhongMaterial || isShaderMaterial)
-      return _material.dynamic.morphTargets;
-    return false; //null;
-  }
-  get morphNormals() { 
-    if (isMeshLambertMaterial || isMeshPhongMaterial || isShaderMaterial)
-      return _material.dynamic.morphNormals;
-    return false; //null;
-  }
-      
-  bool get metal() => (isMeshPhongMaterial)? (_material as MeshPhongMaterial).metal : false; //null;
-      
-  bool get perPixel() => (isMeshPhongMaterial)? (_material as MeshPhongMaterial).perPixel : false; //null;
+  get morphTargets() => _hasMorhTargets ?  _material.dynamic.morphTargets : false;  
 
-  get wrapAround() { 
-    if (isMeshLambertMaterial || isMeshPhongMaterial)
-      return _material.dynamic.wrapAround;
-    return false; //null;
-  }
-  
-  get fog() => _material.dynamic.fog;
+  get morphNormals() => _hasMorphNormals ?  _material.dynamic.morphNormals : false;  
+      
+  bool get metal() => isMeshPhongMaterial ? (_material as MeshPhongMaterial).metal : false; //null;
+      
+  bool get perPixel() => isMeshPhongMaterial ? (_material as MeshPhongMaterial).perPixel : false; //null;
+
+  get wrapAround() => _hasWrapAround ?  _material.dynamic.wrapAround : false;
+
+  get fog() => _hasFog ? _material.dynamic.fog : false;
   get shading() => _material.dynamic.shading;
-  get map() => _material.dynamic.map;
-  get envMap() => _material.dynamic.envMap;
-  get lightMap() => _material.dynamic.lightMap;
-  get bumpMap() => (isMeshPhongMaterial) ? (_material as MeshPhongMaterial).bumpMap : null;
-  get specularMap() => _material.dynamic.specularMap;
+  get map() => _hasTextureMap ? _material.dynamic.map : null;
+  get envMap() => _hasEnvMap ? _material.dynamic.envMap : null;
+  get lightMap() => _hasLightMap ? _material.dynamic.lightMap : null;
+  get bumpMap() => isMeshPhongMaterial ? (_material as MeshPhongMaterial).bumpMap : null;
+  get specularMap() => _hasSpecularMap ? _material.dynamic.specularMap : null;
 
   get wireframe() => _material.dynamic.wireframe;
   get reflectivity() => _material.dynamic.reflectivity;
   get refractionRatio() => _material.dynamic.refractionRatio;
   get combine() => _material.dynamic.combine;
-  get skinning() => _material.dynamic.skinning;
-  get sizeAttenuation() => (isParticleBasicMaterial) ? (_material as ParticleBasicMaterial).sizeAttenuation : false; //null;
+  get skinning() => _hasSkinning ?  _material.dynamic.skinning : false;
+  get sizeAttenuation() => isParticleBasicMaterial ? (_material as ParticleBasicMaterial).sizeAttenuation : false; //null;
   
   bool get isShaderMaterial() => _material is ShaderMaterial;
   bool get isMeshFaceMaterial() => _material is MeshFaceMaterial;
@@ -7124,9 +7114,29 @@ class WebGLMaterial implements Material {
   bool get isMeshPhongMaterial() => _material is MeshPhongMaterial;
   bool get isLineBasicMaterial() => _material is LineBasicMaterial;
   bool get isParticleBasicMaterial() => _material is ParticleBasicMaterial;
+  
+  // TODO - Use this to identify proper interfaces
+  bool get _hasAmbient() => isMeshLambertMaterial || isMeshPhongMaterial;
+  bool get _hasEmissive() => isMeshLambertMaterial || isMeshPhongMaterial;
+  bool get _hasWrapAround() => isMeshLambertMaterial || isMeshPhongMaterial;
+  
+  bool get _hasLightMap() => isMeshBasicMaterial || isMeshLambertMaterial || isMeshPhongMaterial;
+  bool get _hasEnvMap() => isMeshBasicMaterial || isMeshLambertMaterial || isMeshPhongMaterial;
+  bool get _hasSpecularMap() => isMeshBasicMaterial || isMeshLambertMaterial || isMeshPhongMaterial;
+      
+  bool get _hasTextureMap() => isMeshBasicMaterial || isMeshLambertMaterial || isMeshPhongMaterial || isParticleBasicMaterial; //_material is ITextureMapMaterial;
+  
+  bool get _hasSkinning() => isMeshBasicMaterial || isMeshLambertMaterial || isMeshPhongMaterial || isShaderMaterial;
+  
+  bool get _hasMorhTargets => isMeshBasicMaterial || isMeshLambertMaterial || isMeshPhongMaterial || isShaderMaterial;
+  
+  bool get _hasMorphNormals() => isMeshLambertMaterial || isMeshPhongMaterial || isShaderMaterial;
+  
+  bool get _hasVertexColors() => isLineBasicMaterial || isMeshBasicMaterial || isMeshLambertMaterial || isMeshPhongMaterial || isParticleBasicMaterial || isShaderMaterial;
+  bool get _hasFog() => isLineBasicMaterial || isMeshBasicMaterial || isMeshLambertMaterial || isMeshPhongMaterial || isParticleBasicMaterial || isShaderMaterial;
 }
 
-class WebGLCamera implements Camera {
+class WebGLCamera { // implements Camera {
   
   Camera _camera;
   Float32Array _viewMatrixArray,
@@ -7146,6 +7156,8 @@ class WebGLCamera implements Camera {
     return camera["__webglCamera"];
   }
   
+  get near() => _camera.near;
+  get far() => _camera.far;
   get parent() => _camera.parent;
   get matrixWorld() => _camera.matrixWorld;
   get matrixWorldInverse() => _camera.matrixWorldInverse;

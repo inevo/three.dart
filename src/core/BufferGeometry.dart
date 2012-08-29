@@ -1,6 +1,6 @@
 class BufferGeometry {
 
-	int id = Three.GeometryCount ++;
+	int id;
 
 	// attributes
 	Map attributes;
@@ -305,7 +305,7 @@ class BufferGeometry {
 
 		var tangents = attributes[ "tangent" ].array;
 
-		var tan1 = [], tan2 = [];
+		List<Vector3> tan1 = [], tan2 = [];
 
 		for ( var k = 0; k < nVertices; k ++ ) {
 

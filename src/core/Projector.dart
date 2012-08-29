@@ -108,9 +108,13 @@ class Projector
   {
     _objectCount = 0;
     
-    _renderData.objects = [];
-    _renderData.sprites = [];
-    _renderData.lights = [];
+    //TODO: does this clear the Lists in Dart?
+//    _renderData.objects.length = 0;
+//    _renderData.sprites.length = 0;
+//    _renderData.lights.length = 0;
+      _renderData.objects = [];
+      _renderData.sprites = [];
+      _renderData.lights = [];
 
     projectObject( root );
 
@@ -193,10 +197,10 @@ class Projector
     _renderData.elements = [];
 
     scene.updateMatrixWorld();
-    
+
     if ( camera.parent == null ) {
 //      console.warn( 'DEPRECATED: Camera hasn\'t been added to a Scene. Adding it...' );
-      scene.add(camera);
+      scene.add( camera );
       camera.updateMatrixWorld();
     }
 
@@ -230,8 +234,8 @@ class Projector
         rotationMatrix = object.matrixRotationWorld.extractRotation( modelMatrix );
 
         isFaceMaterial = (object.material is MeshFaceMaterial);
-        //side = object.material.side;
-        
+		//side = object.material.side;
+
         vl = vertices.length;
         
         for ( v = 0; v < vl; v ++ ) 
@@ -252,7 +256,6 @@ class Projector
         for ( f = 0; f < fl; f ++ ) 
         {
           face = faces[ f ];
-
           material = isFaceMaterial === true ? geometryMaterials[ face.materialIndex ] : object.material;
 
           if ( material == null ) continue;
