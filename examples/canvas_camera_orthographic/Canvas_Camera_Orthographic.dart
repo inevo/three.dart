@@ -29,7 +29,7 @@ class Canvas_Camera_Orthographic {
     info.style.top = '10px';
     info.style.width = '100%';
     info.style.textAlign = 'center';
-    info.innerHTML = 'Drag to spin the cube';
+    info.innerHTML = 'three.dart - orthographic view';
     container.nodes.add( info );
 
     camera = new OrthographicCamera( -windowHalfX, windowHalfX, windowHalfY, -windowHalfY, - 2000, 1000);
@@ -127,7 +127,7 @@ class Canvas_Camera_Orthographic {
   
   bool animate(int time)
   {
-    window.webkitRequestAnimationFrame(animate);
+    window.requestAnimationFrame(animate);
 
     render();
   }
