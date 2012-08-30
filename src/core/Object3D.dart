@@ -242,6 +242,19 @@ class Object3D
     }
   }
   
+  void applyMatrix ( matrix ) {
+
+    this.matrix.multiply(matrix, this.matrix);
+
+    this.scale.getScaleFromMatrix( this.matrix );
+
+    var mat = new Matrix4().extractRotation( this.matrix );
+    this.rotation.setEulerFromRotationMatrix( mat, this.eulerOrder );
+
+    this.position.getPositionFromMatrix( this.matrix );
+
+  }
+  
   // Quick hack to allow setting new properties (used by the renderer)
   Map __data;
   

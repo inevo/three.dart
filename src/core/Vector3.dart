@@ -248,7 +248,132 @@ class Vector3 implements IVector3
     _y = m.n24;
     _z = m.n34;
   }
+  
+  Vector3 getPositionFromMatrix( m ) {
 
+    this.x = m.elements[12];
+    this.y = m.elements[13];
+    this.z = m.elements[14];
+
+    return this;
+
+  }
+
+  Vector3 setEulerFromRotationMatrix( m,String order ) {
+
+    // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
+
+    // clamp, to handle numerical problems
+
+    var clamp = ( x ) => Math.min( Math.max( x, -1 ), 1 );
+
+    var te = m.elements;
+    var m11 = te[0], m12 = te[4], m13 = te[8];
+    var m21 = te[1], m22 = te[5], m23 = te[9];
+    var m31 = te[2], m32 = te[6], m33 = te[10];
+
+    if ( order == null || order == 'XYZ' ) {
+
+      this.y = Math.asin( clamp( m13 ) );
+
+      if (  m13.abs() < 0.99999 ) {
+
+        this.x = Math.atan2( - m23, m33 );
+        this.z = Math.atan2( - m12, m11 );
+
+      } else {
+
+        this.x = Math.atan2( m21, m22 );
+        this.z = 0;
+
+      }
+
+    } else if ( order === 'YXZ' ) {
+
+      this.x = Math.asin( - clamp( m23 ) );
+
+      if ( m23.abs() < 0.99999 ) {
+
+        this.y = Math.atan2( m13, m33 );
+        this.z = Math.atan2( m21, m22 );
+
+      } else {
+
+        this.y = Math.atan2( - m31, m11 );
+        this.z = 0;
+
+      }
+
+    } else if ( order === 'ZXY' ) {
+
+      this.x = Math.asin( clamp( m32 ) );
+
+      if ( m32.abs() < 0.99999 ) {
+
+        this.y = Math.atan2( - m31, m33 );
+        this.z = Math.atan2( - m12, m22 );
+
+      } else {
+
+        this.y = 0;
+        this.z = Math.atan2( m13, m11 );
+
+      }
+
+    } else if ( order === 'ZYX' ) {
+
+      this.y = Math.asin( - clamp( m31 ) );
+
+      if (m31.abs() < 0.99999 ) {
+
+        this.x = Math.atan2( m32, m33 );
+        this.z = Math.atan2( m21, m11 );
+
+      } else {
+
+        this.x = 0;
+        this.z = Math.atan2( - m12, m22 );
+
+      }
+
+    } else if ( order === 'YZX' ) {
+
+      this.z = Math.asin( clamp( m21 ) );
+
+      if ( m21.abs() < 0.99999 ) {
+
+        this.x = Math.atan2( - m23, m22 );
+        this.y = Math.atan2( - m31, m11 );
+
+      } else {
+
+        this.x = 0;
+        this.y = Math.atan2( m31, m33 );
+
+      }
+
+    } else if ( order === 'XZY' ) {
+
+      this.z = Math.asin( - clamp( m12 ) );
+
+      if ( m12.abs() < 0.99999 ) {
+
+        this.x = Math.atan2( m32, m22 );
+        this.y = Math.atan2( m13, m11 );
+
+      } else {
+
+        this.x = Math.atan2( - m13, m33 );
+        this.y = 0;
+
+      }
+
+    }
+
+    return this;
+
+  }
+  
   void setRotationFromMatrix( m ) 
   {
     num cosY = Math.cos( _y );
@@ -264,6 +389,19 @@ class Vector3 implements IVector3
       _x = 0;
       _z = Math.atan2( m.n21, m.n22 );
     }
+  }
+  
+  Vector3 getScaleFromMatrix( m ) {
+
+    var sx = this.setValues( m.elements[0], m.elements[1], m.elements[2] ).length();
+    var sy = this.setValues( m.elements[4], m.elements[5], m.elements[6] ).length();
+    var sz = this.setValues( m.elements[8], m.elements[9], m.elements[10] ).length();
+
+    this.x = sx;
+    this.y = sy;
+    this.z = sz;
+
+    return this;
   }
 
   bool isZero()
