@@ -495,7 +495,7 @@ class WebGLRenderer implements Renderer {
 
 	// Buffer allocation
 
-	createParticleBuffers ( geometry ) {
+	createParticleBuffers ( Geometry geometry ) {
 
 		geometry["__webglVertexBuffer"] = _gl.createBuffer();
 		geometry["__webglColorBuffer"] = _gl.createBuffer();
@@ -504,7 +504,7 @@ class WebGLRenderer implements Renderer {
 
 	}
 
-	createLineBuffers ( geometry ) {
+	createLineBuffers ( Geometry geometry ) {
 
 		geometry["__webglVertexBuffer"] = _gl.createBuffer();
 		geometry["__webglColorBuffer"] = _gl.createBuffer();
@@ -513,7 +513,7 @@ class WebGLRenderer implements Renderer {
 
 	}
 
-	createRibbonBuffers ( geometry ) {
+	createRibbonBuffers ( Geometry geometry ) {
 
 		geometry["__webglVertexBuffer"] = _gl.createBuffer();
 		geometry["__webglColorBuffer"] = _gl.createBuffer();
@@ -661,7 +661,7 @@ class WebGLRenderer implements Renderer {
 
 	// Buffer initialization
 
-	initCustomAttributes ( geometry, object ) {
+	initCustomAttributes ( Geometry geometry, object ) {
 
 		var nvertices = geometry.vertices.length;
 
@@ -694,7 +694,7 @@ class WebGLRenderer implements Renderer {
 
 					attribute.array = new Float32Array( nvertices * size );
 
-					attribute.buffer = _gl.createBuffer();
+					attribute.buffer = new Buffer(_gl.createBuffer());
 					attribute.buffer.belongsToAttribute = a;
 
 					attribute.needsUpdate = true;
@@ -709,7 +709,7 @@ class WebGLRenderer implements Renderer {
 
 	}
 
-	initParticleBuffers ( geometry, object ) {
+	initParticleBuffers ( Geometry geometry, Object3D object ) {
 
 		var nvertices = geometry.vertices.length;
 
@@ -889,8 +889,9 @@ class WebGLRenderer implements Renderer {
 
 					attribute["array"] = new Float32Array( nvertices * size );
 
-					attribute["buffer"] = _gl.createBuffer();
-					attribute["buffer"].belongsToAttribute = a; // TODO
+					var buffer = new Buffer(_gl.createBuffer());
+					buffer.belongsToAttribute = a;
+					attribute["buffer"] = buffer;
 
 					originalAttribute.needsUpdate = true;
 					attribute["__original"] = originalAttribute;
@@ -977,11 +978,11 @@ class WebGLRenderer implements Renderer {
 
 	//
 
-	initDirectBuffers( geometry ) {
+	initDirectBuffers( BufferGeometry geometry ) {
 
 		var a, attribute, type;
 
-		for ( a in geometry.attributes ) {
+		geometry.attributes.forEach((a, v) {
 
 			if ( a === "index" ) {
 
@@ -993,14 +994,14 @@ class WebGLRenderer implements Renderer {
 
 			}
 
-			attribute = geometry.attributes[ a ];
+			attribute = v;
 
 			attribute.buffer = _gl.createBuffer();
 
 			_gl.bindBuffer( type, attribute.buffer );
 			_gl.bufferData( type, attribute.array, WebGLRenderingContext.STATIC_DRAW );
 
-		}
+		});
 
 	}
 
@@ -6957,6 +6958,12 @@ class Program {
 
 	Program( this.id, this.glProgram, this.code, [this.usedTimes = 0] ) : uniforms = {}, attributes = {};
 } 
+
+class Buffer {
+  WebGLBuffer glbuffer;
+  var belongsToAttribute;
+  Buffer(this.glbuffer);
+}
 
 class WebGLObject {
 	var buffer;

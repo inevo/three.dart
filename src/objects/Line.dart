@@ -30,3 +30,6 @@ class Line extends Object3D {
     }
   }
 }
+
+const LineStrip = 0;
+const LinePieces = 1;

@@ -17,7 +17,7 @@ class Geometry {
   
   List<Vector3> vertices;
   List colors, materials;
-  List<Face4> faces;
+  List<IFace3> faces;
 
   List faceUvs;
   List<List> faceVertexUvs;
@@ -422,10 +422,19 @@ class Geometry {
 
     
     // Start to patch face indices
+    
     il = faces.length;
     for( i = 0; i < il; i ++ ) {
       IFace3 face = faces[ i ];
-
+      
+      // nelsonsilva - Must grow the array
+      var max = Math.max(face.a, face.b);
+      max = Math.max(max, face.c);
+      if ( face is Face4 ) {
+        max = Math.max(max, (face as Face4).d);
+      }
+      changes.length = max + 1;
+      
       if ( face is Face3 ) {
         face.a = changes[ face.a ];
         face.b = changes[ face.b ];
