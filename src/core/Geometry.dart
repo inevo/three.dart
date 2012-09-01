@@ -155,7 +155,7 @@ class Geometry {
     if ( __tmpVertices === null ) {
       
       __tmpVertices = [];
-      vertices.forEach((_) => __tmpVertices.add(new Vector3())); 
+      this.vertices.forEach((_) => __tmpVertices.add(new Vector3())); 
       vertices = __tmpVertices;
 
       faces.forEach((face) {
@@ -171,7 +171,11 @@ class Geometry {
     } else {
       vertices = __tmpVertices;
       
-      vertices.forEach((v) => v.setValues(0, 0, 0));
+      var vl = this.vertices.length;
+      for ( var v = 0; v < vl; v ++ ) {
+        vertices[ v ].setValues( 0, 0, 0 );
+      }
+      
     }
 
     faces.forEach((face) { 
@@ -400,13 +404,17 @@ class Geometry {
     int i, il;
     var abcd = 'abcd', o, k, j, jl, u;
     
-    vertices.forEach((Vector3 v) {
+    Vector3 v;
+    il = this.vertices.length;
+    
+    for( i = 0; i < il; i++) {
+      v = this.vertices[i];
       
       key = Strings.join( [ ( v.x * precision ).round().toStringAsFixed(0), 
                             ( v.y * precision ).round().toStringAsFixed(0), 
                             ( v.z * precision ).round().toStringAsFixed(0) ], '_' );
       
-      if ( verticesMap[ key ] === null ) {
+      if ( verticesMap[ key ] == null ) {
         verticesMap[ key ] = i;
         unique.add( v );
         //TODO: pretty sure this is an acceptable change in syntax here:
@@ -418,7 +426,8 @@ class Geometry {
         //changes[ i ] = changes[ verticesMap[ key ] ];
         changes.add( changes[ verticesMap[ key ] ] );
       }
-    });
+    
+    }
 
     
     // Start to patch face indices
@@ -426,14 +435,6 @@ class Geometry {
     il = faces.length;
     for( i = 0; i < il; i ++ ) {
       IFace3 face = faces[ i ];
-      
-      // nelsonsilva - Must grow the array
-      var max = Math.max(face.a, face.b);
-      max = Math.max(max, face.c);
-      if ( face is Face4 ) {
-        max = Math.max(max, (face as Face4).d);
-      }
-      changes.length = max + 1;
       
       if ( face is Face3 ) {
         face.a = changes[ face.a ];

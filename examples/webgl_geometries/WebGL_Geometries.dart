@@ -23,11 +23,9 @@ class WebGL_Geometries  {
     document.body.nodes.add( container );
 
     camera = new PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-    camera.position.z = 400;
+    camera.position.y = 400;
 
     scene = new Scene();
-   
-    scene.add(camera);
     
     scene.add( new AmbientLight( 0x404040 ) );
 
@@ -50,10 +48,12 @@ class WebGL_Geometries  {
     object.position.setValues( -200, 0, 400 );
     scene.add( object );
 
+    
     object = SceneUtils.createMultiMaterialObject( new CylinderGeometry( 25, 75, 100, 40, 5 ), materials );
     object.position.setValues( 0, 0, 400 );
     scene.add( object );
 
+    
     object = SceneUtils.createMultiMaterialObject( new IcosahedronGeometry( 75, 1 ), materials );
     object.position.setValues( -200, 0, 200 );
     scene.add( object );
@@ -71,9 +71,9 @@ class WebGL_Geometries  {
     object.position.setValues( -200, 0, 0 );
     scene.add( object );
 
-    object = SceneUtils.createMultiMaterialObject( new CircleGeometry( 50, 10, 0, Math.PI ), materials );
-    object.rotation.x = Math.PI/2;
-    object.add( object );
+    var object2 = SceneUtils.createMultiMaterialObject( new CircleGeometry( 50, 10, 0, Math.PI ), materials );
+    object2.rotation.x = Math.PI/2;
+    object.add( object2 );
 
     object = SceneUtils.createMultiMaterialObject( new SphereGeometry( 75, 20, 10 ), materials );
     object.position.setValues( 0, 0, 0 );
@@ -107,7 +107,7 @@ class WebGL_Geometries  {
     object = new ArrowHelper( new Vector3( 0, 1, 0 ), new Vector3( 0, 0, 0 ), 50 );
     object.position.setValues( 200, 0, 400 );
     scene.add( object );
-
+    
     renderer = new WebGLRenderer(); // {antialias: true}
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.sortObjects = false;

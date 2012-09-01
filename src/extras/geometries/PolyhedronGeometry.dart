@@ -5,20 +5,20 @@ class PolyhedronGeometry extends Geometry {
   // nelsonsilva - We're using a PolyhedronGeometryVertex decorator to allow adding index and uv properties
   List<PolyhedronGeometryVertex> _p = [];
   
-  PolyhedronGeometry(List<List<num>> vertices, List<List<num>> faces, [num radius = 1, num detail = 0]) : super() {
+  PolyhedronGeometry(List<List<num>> lvertices, List<List<num>> lfaces, [num radius = 1, num detail = 0]) : super() {
     
     _midpoints = [];
     
-    vertices.forEach( (vertex) {
+    lvertices.forEach( (vertex) {
       _prepare( new PolyhedronGeometryVertex(vertex[ 0 ], vertex[ 1 ], vertex[ 2 ]));
     });
     
-    faces.forEach((face) => _make( _p[ face[ 0 ] ], _p[ face[ 1 ] ], _p[ face[ 2 ] ], detail ));
-
-    mergeVertices();
+    lfaces.forEach((face) => _make( _p[ face[ 0 ] ], _p[ face[ 1 ] ], _p[ face[ 2 ] ], detail ));
 
     // now unwrapp and add the original Vector3 to the vertices
     _p.forEach((v) => this.vertices.add(v.vertex));
+    
+    mergeVertices();
     
     // Apply radius
 

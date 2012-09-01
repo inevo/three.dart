@@ -125,7 +125,7 @@ class Object3D {
   }
 
   void add( Object3D object ) {
-    if ( object === this ) {
+    if ( object == this ) {
       print( 'THREE.Object3D.add: An object can\'t be added as a child of itself.' );
       return;
     }
